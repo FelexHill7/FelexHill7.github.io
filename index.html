@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Felix Hill | Personal Website</title>
+    <meta
+      name="description"
+      content="Personal website for Felix Hill: projects, skills, and contact details."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,800&family=Space+Grotesk:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="site-header" id="top">
+      <a class="logo" href="#top">FH</a>
+      <nav class="site-nav" aria-label="Main navigation">
+        <a href="#about">About</a>
+        <a href="#projects">Projects</a>
+        <a href="#contact">Contact</a>
+      </nav>
+      <a class="button ghost" href="mailto:hello@example.com">Email Me</a>
+    </header>
+
+    <main>
+      <section class="hero reveal">
+        <p class="kicker">Available for freelance + full-time</p>
+        <h1>
+          I design and build digital experiences that feel
+          <span>fast, clear, and memorable.</span>
+        </h1>
+        <p class="lede">
+          I am Felix Hill, a developer focused on thoughtful interfaces and robust web
+          applications.
+        </p>
+        <div class="hero-actions">
+          <a class="button" href="#projects">See My Work</a>
+          <a class="button ghost" href="https://github.com/FelexHill7" target="_blank" rel="noreferrer">GitHub</a>
+        </div>
+      </section>
+
+      <section class="about reveal" id="about">
+        <h2>About</h2>
+        <p>
+          I love turning ideas into products people actually enjoy using. My work blends
+          engineering discipline with visual taste, whether I am building landing pages,
+          internal tools, or full-stack applications.
+        </p>
+        <ul class="pill-list" aria-label="Core skills">
+          <li>JavaScript / TypeScript</li>
+          <li>React + Next.js</li>
+          <li>Node.js APIs</li>
+          <li>UI Design Systems</li>
+          <li>Performance Optimization</li>
+          <li>Accessibility</li>
+        </ul>
+      </section>
+
+      <section class="projects reveal" id="projects">
+        <h2>Selected Projects</h2>
+        <div class="project-grid">
+          <article class="project-card">
+            <h3>PulseBoard</h3>
+            <p>
+              A real-time analytics dashboard with clean data storytelling and custom
+              visualizations.
+            </p>
+            <a href="#" aria-label="Open PulseBoard project">View Project</a>
+          </article>
+          <article class="project-card">
+            <h3>ShiftFlow</h3>
+            <p>
+              A scheduling platform that reduced planning time by 40% for distributed
+              operations teams.
+            </p>
+            <a href="#" aria-label="Open ShiftFlow project">View Project</a>
+          </article>
+          <article class="project-card">
+            <h3>Northstar Commerce</h3>
+            <p>
+              A fast storefront with a conversion-focused checkout and lightweight
+              component architecture.
+            </p>
+            <a href="#" aria-label="Open Northstar Commerce project">View Project</a>
+          </article>
+        </div>
+      </section>
+
+      <section class="contact reveal" id="contact">
+        <h2>Let us build something useful.</h2>
+        <p>Tell me what you are working on and I will get back to you within 24 hours.</p>
+        <a class="button" href="mailto:hello@example.com">Start a Conversation</a>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <p>© <span id="year"></span> Felix Hill. Built for GitHub Pages.</p>
+      <a href="#top">Back to top</a>
+    </footer>
+
+    <script src="script.js"></script>
+  </body>
+</html>
