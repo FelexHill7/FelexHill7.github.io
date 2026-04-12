@@ -62,32 +62,31 @@
       </section>
 
       <section class="projects reveal" id="projects">
-        <h2>Selected Projects</h2>
-        <div class="project-grid">
-          <article class="project-card">
-            <h3>PulseBoard</h3>
-            <p>
-              A real-time analytics dashboard with clean data storytelling and custom
-              visualizations.
-            </p>
-            <a href="#" aria-label="Open PulseBoard project">View Project</a>
-          </article>
-          <article class="project-card">
-            <h3>ShiftFlow</h3>
-            <p>
-              A scheduling platform that reduced planning time by 40% for distributed
-              operations teams.
-            </p>
-            <a href="#" aria-label="Open ShiftFlow project">View Project</a>
-          </article>
-          <article class="project-card">
-            <h3>Northstar Commerce</h3>
-            <p>
-              A fast storefront with a conversion-focused checkout and lightweight
-              component architecture.
-            </p>
-            <a href="#" aria-label="Open Northstar Commerce project">View Project</a>
-          </article>
+        <h2>GitHub Repositories</h2>
+
+        <div class="github-stats-bar" id="github-stats-bar">
+          <div class="stat-item">
+            <span class="stat-number" id="stat-repos">--</span>
+            <span class="stat-label">Public Repos</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-number" id="stat-languages">--</span>
+            <span class="stat-label">Languages</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-number" id="stat-stars">--</span>
+            <span class="stat-label">Total Stars</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-number" id="stat-forks">--</span>
+            <span class="stat-label">Total Forks</span>
+          </div>
+        </div>
+
+        <div class="language-chart" id="language-chart"></div>
+
+        <div class="project-grid" id="repo-grid">
+          <p class="loading-text">Loading repositories...</p>
         </div>
       </section>
 
