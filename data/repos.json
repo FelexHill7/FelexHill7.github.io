@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-12T02:22:41.390Z",
+  "generatedAt": "2026-05-12T03:19:06.661Z",
   "user": "FelexHill7",
   "repos": [
     {
@@ -53,7 +53,7 @@
       "html_url": "https://github.com/FelexHill7/RxRead",
       "language": "Python",
       "default_branch": "master",
-      "size": 4071,
+      "size": 79049,
       "stargazers_count": 0,
       "forks_count": 0,
       "license": null,
@@ -123,6 +123,21 @@
       "created_at": "2026-03-13T08:38:05Z",
       "pushed_at": "2026-04-02T07:02:40Z",
       "updated_at": "2026-04-02T07:02:44Z"
+    },
+    {
+      "name": "cancerdetection",
+      "description": null,
+      "html_url": "https://github.com/FelexHill7/cancerdetection",
+      "language": "Jupyter Notebook",
+      "default_branch": "main",
+      "size": 2139,
+      "stargazers_count": 0,
+      "forks_count": 0,
+      "license": null,
+      "fork": true,
+      "created_at": "2026-03-13T07:53:42Z",
+      "pushed_at": "2026-03-23T03:55:26Z",
+      "updated_at": "2026-03-23T03:55:29Z"
     },
     {
       "name": "IluvDocker",
@@ -241,7 +256,19 @@
     "Bin2dec": {}
   },
   "featured": {
-    "cancerdetection": [],
+    "cancerdetection": [
+      "data/images/cancerdetection-0.png",
+      "data/images/cancerdetection-1.png",
+      "data/images/cancerdetection-2.png",
+      "data/images/cancerdetection-3.png",
+      "data/images/cancerdetection-4.png",
+      "data/images/cancerdetection-5.png",
+      "data/images/cancerdetection-6.png",
+      "data/images/cancerdetection-7.png",
+      "data/images/cancerdetection-8.png",
+      "data/images/cancerdetection-9.png",
+      "data/images/cancerdetection-10.png"
+    ],
     "RxRead": [
       "https://raw.githubusercontent.com/FelexHill7/RxRead/master/outputs/confusion_matrix.png",
       "https://raw.githubusercontent.com/FelexHill7/RxRead/master/outputs/training_curves.png"
