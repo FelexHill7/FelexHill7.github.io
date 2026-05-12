@@ -165,7 +165,7 @@ async function main() {
     (r) =>
       r.owner &&
       r.owner.login === GITHUB_USER &&
-      !r.fork &&
+      (!r.fork || FEATURED_NAMES.has(r.name)) &&
       r.name !== GITHUB_USER &&
       r.name !== `${GITHUB_USER}.github.io`
   );
