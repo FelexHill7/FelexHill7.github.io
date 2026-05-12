@@ -1,8 +1,264 @@
 {
-  "generatedAt": null,
+  "generatedAt": "2026-05-12T02:22:41.390Z",
   "user": "FelexHill7",
-  "repos": [],
-  "languages": {},
-  "featured": {},
-  "_note": "Placeholder. The Build site data GitHub Action overwrites this with real data on push to main."
+  "repos": [
+    {
+      "name": "weatherTrendForecasting",
+      "description": null,
+      "html_url": "https://github.com/FelexHill7/weatherTrendForecasting",
+      "language": "Jupyter Notebook",
+      "default_branch": "main",
+      "size": 11800,
+      "stargazers_count": 0,
+      "forks_count": 0,
+      "license": null,
+      "fork": false,
+      "created_at": "2026-05-03T10:47:02Z",
+      "pushed_at": "2026-05-05T23:47:53Z",
+      "updated_at": "2026-05-05T23:47:56Z"
+    },
+    {
+      "name": "weatherapp",
+      "description": "weather app",
+      "html_url": "https://github.com/FelexHill7/weatherapp",
+      "language": "Java",
+      "default_branch": "main",
+      "size": 65,
+      "stargazers_count": 0,
+      "forks_count": 0,
+      "license": null,
+      "fork": false,
+      "created_at": "2026-05-01T10:51:22Z",
+      "pushed_at": "2026-05-06T00:51:39Z",
+      "updated_at": "2026-05-06T00:51:42Z"
+    },
+    {
+      "name": "pomodoroapp",
+      "description": null,
+      "html_url": "https://github.com/FelexHill7/pomodoroapp",
+      "language": "Java",
+      "default_branch": "main",
+      "size": 6,
+      "stargazers_count": 0,
+      "forks_count": 0,
+      "license": null,
+      "fork": false,
+      "created_at": "2026-04-29T10:38:46Z",
+      "pushed_at": "2026-04-29T11:20:32Z",
+      "updated_at": "2026-04-29T11:20:36Z"
+    },
+    {
+      "name": "RxRead",
+      "description": "ResNetCRNN+Attention handwriting recognition model trained on the GNHK dataset. Beam search, TTA, character LM rescoring, Flask web UI.",
+      "html_url": "https://github.com/FelexHill7/RxRead",
+      "language": "Python",
+      "default_branch": "master",
+      "size": 4071,
+      "stargazers_count": 0,
+      "forks_count": 0,
+      "license": null,
+      "fork": false,
+      "created_at": "2026-04-14T12:29:15Z",
+      "pushed_at": "2026-05-12T01:54:43Z",
+      "updated_at": "2026-05-12T01:54:48Z"
+    },
+    {
+      "name": "Calculator",
+      "description": null,
+      "html_url": "https://github.com/FelexHill7/Calculator",
+      "language": "Java",
+      "default_branch": "master",
+      "size": 6,
+      "stargazers_count": 0,
+      "forks_count": 0,
+      "license": null,
+      "fork": false,
+      "created_at": "2026-04-06T05:31:33Z",
+      "pushed_at": "2026-04-06T05:31:36Z",
+      "updated_at": "2026-04-06T05:31:39Z"
+    },
+    {
+      "name": "tictactoe",
+      "description": null,
+      "html_url": "https://github.com/FelexHill7/tictactoe",
+      "language": "Java",
+      "default_branch": "master",
+      "size": 3,
+      "stargazers_count": 0,
+      "forks_count": 0,
+      "license": null,
+      "fork": false,
+      "created_at": "2026-04-06T02:42:56Z",
+      "pushed_at": "2026-04-06T02:42:59Z",
+      "updated_at": "2026-04-06T02:43:02Z"
+    },
+    {
+      "name": "lab3-ci-testing",
+      "description": null,
+      "html_url": "https://github.com/FelexHill7/lab3-ci-testing",
+      "language": "Python",
+      "default_branch": "main",
+      "size": 8041,
+      "stargazers_count": 0,
+      "forks_count": 0,
+      "license": null,
+      "fork": false,
+      "created_at": "2026-04-05T20:53:41Z",
+      "pushed_at": "2026-04-05T22:05:05Z",
+      "updated_at": "2026-04-05T22:05:08Z"
+    },
+    {
+      "name": "SVM-monitoring",
+      "description": null,
+      "html_url": "https://github.com/FelexHill7/SVM-monitoring",
+      "language": "Python",
+      "default_branch": "main",
+      "size": 317,
+      "stargazers_count": 0,
+      "forks_count": 0,
+      "license": {
+        "spdx_id": "MIT"
+      },
+      "fork": false,
+      "created_at": "2026-03-13T08:38:05Z",
+      "pushed_at": "2026-04-02T07:02:40Z",
+      "updated_at": "2026-04-02T07:02:44Z"
+    },
+    {
+      "name": "IluvDocker",
+      "description": "docker labtest",
+      "html_url": "https://github.com/FelexHill7/IluvDocker",
+      "language": "Python",
+      "default_branch": "main",
+      "size": 20,
+      "stargazers_count": 0,
+      "forks_count": 0,
+      "license": null,
+      "fork": false,
+      "created_at": "2026-02-23T11:18:02Z",
+      "pushed_at": "2026-02-23T11:20:42Z",
+      "updated_at": "2026-02-23T11:20:45Z"
+    },
+    {
+      "name": "UML-Test-1",
+      "description": null,
+      "html_url": "https://github.com/FelexHill7/UML-Test-1",
+      "language": "Java",
+      "default_branch": "main",
+      "size": 207,
+      "stargazers_count": 0,
+      "forks_count": 0,
+      "license": null,
+      "fork": false,
+      "created_at": "2026-02-16T12:05:41Z",
+      "pushed_at": "2026-02-16T12:08:34Z",
+      "updated_at": "2026-02-16T12:08:37Z"
+    },
+    {
+      "name": "k-means-visualization-demo",
+      "description": "k-means algorithm visualization",
+      "html_url": "https://github.com/FelexHill7/k-means-visualization-demo",
+      "language": "Python",
+      "default_branch": "main",
+      "size": 2,
+      "stargazers_count": 0,
+      "forks_count": 0,
+      "license": null,
+      "fork": false,
+      "created_at": "2026-02-09T15:53:41Z",
+      "pushed_at": "2026-02-09T15:54:26Z",
+      "updated_at": "2026-02-09T15:54:34Z"
+    },
+    {
+      "name": "PixelCraft",
+      "description": "Takes and image and modifies it based on code",
+      "html_url": "https://github.com/FelexHill7/PixelCraft",
+      "language": "Java",
+      "default_branch": "main",
+      "size": 156,
+      "stargazers_count": 0,
+      "forks_count": 0,
+      "license": null,
+      "fork": false,
+      "created_at": "2025-03-30T12:50:53Z",
+      "pushed_at": "2025-03-30T13:42:36Z",
+      "updated_at": "2025-03-30T13:42:39Z"
+    },
+    {
+      "name": "Bin2dec",
+      "description": "input binary and convert to decimal",
+      "html_url": "https://github.com/FelexHill7/Bin2dec",
+      "language": null,
+      "default_branch": "main",
+      "size": 6,
+      "stargazers_count": 0,
+      "forks_count": 0,
+      "license": null,
+      "fork": false,
+      "created_at": "2025-03-21T10:00:01Z",
+      "pushed_at": "2025-05-08T10:14:55Z",
+      "updated_at": "2025-05-08T10:14:59Z"
+    }
+  ],
+  "languages": {
+    "weatherapp": {
+      "Java": 56356,
+      "JavaScript": 43019,
+      "CSS": 1056,
+      "HTML": 627
+    },
+    "pomodoroapp": {
+      "Java": 3258
+    },
+    "Calculator": {
+      "Java": 12080,
+      "Batchfile": 220
+    },
+    "tictactoe": {
+      "Java": 6636
+    },
+    "lab3-ci-testing": {
+      "Python": 7765,
+      "Dockerfile": 1122
+    },
+    "SVM-monitoring": {
+      "Python": 3295,
+      "Dockerfile": 188
+    },
+    "IluvDocker": {
+      "Python": 2800,
+      "Dockerfile": 1172
+    },
+    "UML-Test-1": {
+      "Java": 4716
+    },
+    "k-means-visualization-demo": {
+      "Python": 5257
+    },
+    "PixelCraft": {
+      "Java": 14956
+    },
+    "Bin2dec": {}
+  },
+  "featured": {
+    "cancerdetection": [],
+    "RxRead": [
+      "https://raw.githubusercontent.com/FelexHill7/RxRead/master/outputs/confusion_matrix.png",
+      "https://raw.githubusercontent.com/FelexHill7/RxRead/master/outputs/training_curves.png"
+    ],
+    "weatherTrendForecasting": [
+      "data/images/weatherTrendForecasting-0.png",
+      "data/images/weatherTrendForecasting-1.png",
+      "data/images/weatherTrendForecasting-2.png",
+      "data/images/weatherTrendForecasting-3.png",
+      "data/images/weatherTrendForecasting-4.png",
+      "data/images/weatherTrendForecasting-5.png",
+      "data/images/weatherTrendForecasting-6.png",
+      "data/images/weatherTrendForecasting-7.png",
+      "data/images/weatherTrendForecasting-8.png",
+      "data/images/weatherTrendForecasting-9.png",
+      "data/images/weatherTrendForecasting-10.png",
+      "data/images/weatherTrendForecasting-11.png"
+    ]
+  }
 }
