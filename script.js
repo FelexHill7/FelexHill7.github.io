@@ -4,8 +4,9 @@ if (yearNode) {
   yearNode.textContent = String(new Date().getFullYear());
 }
 
-// GitHub repo fetching
 const GITHUB_USER = 'FelexHill7';
+const DATA_URL = 'data/repos.json';
+
 const LANG_COLORS = {
   JavaScript: '#f1e05a',
   TypeScript: '#3178c6',
@@ -25,7 +26,7 @@ const LANG_COLORS = {
   PHP: '#4F5D95',
 };
 
-// Featured projects config — shown first with notebook visuals
+// Featured projects config — display metadata for repos pre-baked by scripts/build-data.js
 const FEATURED_REPOS = [
   {
     name: 'cancerdetection',
@@ -38,47 +39,42 @@ const FEATURED_REPOS = [
       'PCA-based 2D/3D decision boundary visualizations',
       'Tech: Python, SciKit-Learn, TensorFlow, Pandas, Matplotlib',
     ],
-    notebooks: [
-      'notebooks/model_comparison.ipynb',
-      'notebooks/svm_classifier.ipynb',
-      'notebooks/logistic_regression.ipynb',
-      'notebooks/neural_network.ipynb',
-    ],
-    maxImages: 6,
+    maxImages: 12,
   },
   {
-    name: 'SVM-monitoring',
-    title: 'SVM Performance Monitoring',
-    description: 'Dockerized Flask API serving an SVM classifier with Prometheus metrics, Grafana dashboards, and Kubernetes deployment for real-time ML performance monitoring.',
+    name: 'RxRead',
+    title: 'RxRead — Handwriting OCR Comparison',
+    description: 'Web app comparing four handwriting OCR backends side-by-side: a from-scratch ResNet-CRNN, Microsoft TrOCR (line and whole-image), and Google Gemini vision, with an optional prescription-mode post-processor.',
     bullets: [
-      'Flask API with /classify and /metrics endpoints',
-      'Prometheus time-series metrics for CPU, memory & latency',
-      'Grafana dashboards for real-time resource visualization',
-      'Docker + Kubernetes deployment with cAdvisor monitoring',
-      'Tested on 2,000 & 8,000 samples — 94.4% accuracy',
+      'From-scratch ResNet-18 + BiLSTM + CTC word-level CRNN (~24% CER)',
+      'TrOCR & Gemini Vision backends for production-grade comparison',
+      'Connected-component line detection with two-pass NMS',
+      'Beam search + bigram LM rescoring + test-time augmentation',
+      'Tech: PyTorch, Transformers, Flask, Google GenAI',
     ],
-    notebooks: [],
-    readmeImages: true,
-    maxImages: 4,
+    maxImages: 8,
   },
   {
-    name: 'k-means-visualization-demo',
-    title: 'K-Means Clustering Visualization',
-    description: 'Interactive visualization of the K-Means clustering algorithm showing centroid movement, cluster assignments, and convergence across iterations.',
+    name: 'weatherTrendForecasting',
+    title: 'Weather Trend Forecasting',
+    description: 'End-to-end data science project on the Global Weather Repository (40+ features, worldwide) with anomaly detection, SARIMA & Prophet forecasting, ensemble methods, and spatial visualization.',
     bullets: [
-      'K-Means algorithm implementation from scratch',
-      'Animated centroid convergence visualization',
-      'Configurable cluster count and data distribution',
-      'Matplotlib scatter plots with decision boundaries',
-      'Tech: Python, NumPy, Matplotlib, scikit-learn',
+      'Anomaly detection: Z-score, IQR, Isolation Forest, LOF',
+      'Time series: ADF stationarity, seasonal decomposition, ACF/PACF',
+      'Forecasting: SARIMA(1,0,1)(1,1,1,12) + Prophet ensemble',
+      'Climate analysis, air-quality correlation, spatial visualization',
+      'Tech: Python, Pandas, statsmodels, Prophet, scikit-learn',
     ],
-    notebooks: [],
-    sourceFile: 'k-meansVisual.py',
-    maxImages: 4,
+    maxImages: 12,
   },
 ];
 
-// Known repo details for richer bullet points
+const FEATURED_ORDER = FEATURED_REPOS.map((repo) => repo.name);
+const FEATURED_CONFIG = FEATURED_REPOS.reduce((acc, repo) => {
+  acc[repo.name] = repo;
+  return acc;
+}, {});
+
 const REPO_DETAILS = {
   'Calculator': {
     bullets: ['Basic arithmetic operations', 'Clean Java console interface', 'Input validation & error handling'],
@@ -124,116 +120,74 @@ const REPO_DETAILS = {
   },
 };
 
-async function extractNotebookImages(repoName, notebookPath, maxImages) {
-  try {
-    const url = `https://api.github.com/repos/${GITHUB_USER}/${repoName}/contents/${notebookPath}`;
-    const res = await fetch(url);
-    if (!res.ok) return [];
-    const fileData = await res.json();
-    // Notebook content is base64-encoded by GitHub API
-    const content = atob(fileData.content.replace(/\n/g, ''));
-    const nb = JSON.parse(content);
-    const images = [];
-    for (const cell of nb.cells || []) {
-      if (images.length >= maxImages) break;
-      for (const output of cell.outputs || []) {
-        if (images.length >= maxImages) break;
-        // Check for image in output data
-        const data = output.data;
-        if (data && data['image/png']) {
-          const b64 = Array.isArray(data['image/png'])
-            ? data['image/png'].join('')
-            : data['image/png'];
-          images.push(`data:image/png;base64,${b64}`);
-        }
-      }
-    }
-    return images;
-  } catch {
-    return [];
-  }
-}
-
-async function renderFeaturedProjects(repos) {
+function renderFeaturedProjects(repos, featuredImages) {
   const grid = document.getElementById('featured-grid');
-  if (!grid) return;
+  if (!grid) return [];
   grid.innerHTML = '';
 
-  for (const featured of FEATURED_REPOS) {
-    const repo = repos.find((r) => r.name === featured.name);
-    if (!repo) continue;
+  const featuredRepos = FEATURED_ORDER
+    .map((name) => {
+      const repo = repos.find((r) => r.name === name);
+      if (!repo) return null;
+      const config = FEATURED_CONFIG[name] || {};
+      const images = (featuredImages && featuredImages[name]) || [];
+      return {
+        repo,
+        title: config.title || repo.name,
+        description: config.description || repo.description || 'A repository with visual outputs.',
+        bullets: config.bullets || [],
+        maxImages: config.maxImages || 6,
+        images,
+      };
+    })
+    .filter(Boolean);
+
+  if (featuredRepos.length === 0) {
+    grid.innerHTML = '<p class="loading-text">No featured projects were found.</p>';
+    return [];
+  }
+
+  for (const featured of featuredRepos) {
+    const repo = featured.repo;
+    const title = featured.title;
+    const bulletsHTML = featured.bullets.length
+      ? `<ul class="repo-bullets featured-bullets">${featured.bullets.map((b) => `<li>${b}</li>`).join('')}</ul>`
+      : '';
+
+    const imageSet = featured.images.slice(0, featured.maxImages);
+    const galleryHTML = imageSet.length
+      ? `
+        <div class="featured-gallery">
+          <div class="gallery-scroll" id="gallery-${repo.name}">
+            ${imageSet
+              .map(
+                (src, i) =>
+                  `<img src="${src}" alt="${title} visualization ${i + 1}" loading="lazy" />`
+              )
+              .join('')}
+          </div>
+          ${imageSet.length > 1
+            ? `
+          <div class="gallery-nav">
+            <button class="gallery-btn" onclick="scrollGallery('${repo.name}', -1)" aria-label="Previous">&#8249;</button>
+            <span class="gallery-count">${imageSet.length} visualizations</span>
+            <button class="gallery-btn" onclick="scrollGallery('${repo.name}', 1)" aria-label="Next">&#8250;</button>
+          </div>`
+            : ''}
+        </div>`
+      : `<div class="featured-placeholder"><span>&#128202;</span> View visualizations on <a href="${repo.html_url}" target="_blank" rel="noreferrer">GitHub</a></div>`;
+
+    const langColor = LANG_COLORS[repo.language] || '#8b8b8b';
+    const sizeKB = repo.size;
+    const sizeLabel = sizeKB >= 1024 ? `${(sizeKB / 1024).toFixed(1)} MB` : `${sizeKB} KB`;
 
     const card = document.createElement('article');
     card.className = 'featured-card';
-
-    // Fetch per-repo languages
-    let langBarHTML = '';
-    let langLabelsHTML = '';
-    try {
-      const langRes = await fetch(repo.languages_url);
-      if (langRes.ok) {
-        const repoLangs = await langRes.json();
-        const langTotal = Object.values(repoLangs).reduce((a, b) => a + b, 0);
-        const langEntries = Object.entries(repoLangs).sort((a, b) => b[1] - a[1]);
-        if (langEntries.length > 0) {
-          const segments = langEntries
-            .map(([lang, bytes]) => {
-              const pct = ((bytes / langTotal) * 100).toFixed(1);
-              const color = LANG_COLORS[lang] || '#8b8b8b';
-              return `<div class="lang-segment" style="width:${pct}%;background:${color}" title="${lang}: ${pct}%"></div>`;
-            })
-            .join('');
-          langBarHTML = `<div class="repo-lang-bar"><div class="lang-bar">${segments}</div></div>`;
-          langLabelsHTML = `<div class="repo-lang-labels">${langEntries
-            .map(([lang, bytes]) => {
-              const pct = ((bytes / langTotal) * 100).toFixed(1);
-              const color = LANG_COLORS[lang] || '#8b8b8b';
-              return `<span class="lang-legend-item"><span class="lang-dot" style="background:${color}"></span>${lang} <span class="lang-pct">${pct}%</span></span>`;
-            })
-            .join('')}</div>`;
-        }
-      }
-    } catch {}
-
-    // Collect notebook images
-    let allImages = [];
-    for (const nbPath of featured.notebooks) {
-      const imgs = await extractNotebookImages(featured.name, nbPath, featured.maxImages - allImages.length);
-      allImages = allImages.concat(imgs);
-      if (allImages.length >= featured.maxImages) break;
-    }
-
-    // Build gallery HTML
-    let galleryHTML = '';
-    if (allImages.length > 0) {
-      galleryHTML = `
-        <div class="featured-gallery">
-          <div class="gallery-scroll" id="gallery-${featured.name}">
-            ${allImages.map((src, i) => `<img src="${src}" alt="${featured.title} visualization ${i + 1}" loading="lazy" />`).join('')}
-          </div>
-          ${allImages.length > 1 ? `
-          <div class="gallery-nav">
-            <button class="gallery-btn" onclick="scrollGallery('${featured.name}', -1)" aria-label="Previous">&#8249;</button>
-            <span class="gallery-count">${allImages.length} visualizations</span>
-            <button class="gallery-btn" onclick="scrollGallery('${featured.name}', 1)" aria-label="Next">&#8250;</button>
-          </div>` : ''}
-        </div>`;
-    } else {
-      // Fallback: show a code preview or placeholder
-      galleryHTML = `<div class="featured-placeholder"><span>&#128202;</span> View visualizations on <a href="${repo.html_url}" target="_blank" rel="noreferrer">GitHub</a></div>`;
-    }
-
-    const bulletsHTML = `<ul class="repo-bullets featured-bullets">${featured.bullets.map((b) => `<li>${b}</li>`).join('')}</ul>`;
-
-    const sizeKB = repo.size;
-    const sizeLabel = sizeKB >= 1024 ? `${(sizeKB / 1024).toFixed(1)} MB` : `${sizeKB} KB`;
-    const langColor = LANG_COLORS[repo.language] || '#8b8b8b';
-
     card.innerHTML = `
       <div class="featured-content">
         <div class="featured-text">
           <div class="repo-header">
-            <h3><a href="${repo.html_url}" target="_blank" rel="noreferrer">${featured.title}</a></h3>
+            <h3><a href="${repo.html_url}" target="_blank" rel="noreferrer">${title}</a></h3>
             <div class="repo-badges">
               <span class="repo-badge featured-badge">Featured</span>
               ${repo.license ? `<span class="repo-license">${repo.license.spdx_id}</span>` : ''}
@@ -241,8 +195,7 @@ async function renderFeaturedProjects(repos) {
           </div>
           <p class="featured-desc">${featured.description}</p>
           ${bulletsHTML}
-          ${langBarHTML}
-          ${langLabelsHTML}
+          <div class="repo-lang-bar"><div class="lang-bar"></div></div>
           <div class="repo-stats">
             ${repo.language ? `<span class="repo-lang"><span class="lang-dot" style="background:${langColor}"></span>${repo.language}</span>` : ''}
             <span class="repo-stat" title="Stars">&#9733; ${repo.stargazers_count}</span>
@@ -257,6 +210,8 @@ async function renderFeaturedProjects(repos) {
     `;
     grid.appendChild(card);
   }
+
+  return featuredRepos.map((item) => item.repo.name);
 }
 
 function scrollGallery(name, dir) {
@@ -266,130 +221,82 @@ function scrollGallery(name, dir) {
   el.scrollBy({ left: dir * scrollAmount, behavior: 'smooth' });
 }
 
-async function fetchRepos() {
+function renderRegularGrid(repos, languagesMap) {
   const grid = document.getElementById('repo-grid');
-  try {
-    const res = await fetch(
-      `https://api.github.com/users/${GITHUB_USER}/repos?sort=updated&per_page=100`
-    );
-    if (!res.ok) throw new Error('GitHub API error');
-    const repos = await res.json();
+  if (!grid) return;
+  grid.innerHTML = '';
 
-    // Filter out profile repo and forks (keep only originals), skip .github.io
-    const filtered = repos.filter(
-      (r) => !r.fork && r.name !== GITHUB_USER && r.name !== `${GITHUB_USER}.github.io`
-    );
+  repos.forEach((repo) => {
+    const card = document.createElement('article');
+    card.className = 'project-card repo-card';
 
-    // Compute stats
-    const allRepos = repos.filter((r) => r.name !== GITHUB_USER);
-    const languages = [...new Set(allRepos.map((r) => r.language).filter(Boolean))];
-    const totalStars = allRepos.reduce((s, r) => s + r.stargazers_count, 0);
-    const totalForks = allRepos.reduce((s, r) => s + r.forks_count, 0);
-
-    document.getElementById('stat-repos').textContent = allRepos.length;
-    document.getElementById('stat-languages').textContent = languages.length;
-    document.getElementById('stat-stars').textContent = totalStars;
-    document.getElementById('stat-forks').textContent = totalForks;
-
-    // Language breakdown bar
-    buildLanguageChart(allRepos);
-
-    // Activity timeline
-    buildActivityTimeline(allRepos);
-
-    // Render featured projects first
-    const featuredNames = FEATURED_REPOS.map((f) => f.name);
-    await renderFeaturedProjects(repos);
-
-    // Filter out featured repos from regular grid
-    const regular = filtered.filter((r) => !featuredNames.includes(r.name));
-
-    // Render cards with per-repo language bars and bullets
-    grid.innerHTML = '';
-    const langRequests = regular.map((repo) =>
-      fetch(repo.languages_url)
-        .then((r) => (r.ok ? r.json() : {}))
-        .catch(() => ({}))
-    );
-    const langResults = await Promise.all(langRequests);
-
-    regular.forEach((repo, i) => {
-      const card = document.createElement('article');
-      card.className = 'project-card repo-card';
-
-      const langColor = LANG_COLORS[repo.language] || '#8b8b8b';
-      const updated = new Date(repo.pushed_at).toLocaleDateString('en-US', {
-        month: 'short',
-        day: 'numeric',
-        year: 'numeric',
-      });
-      const created = new Date(repo.created_at).toLocaleDateString('en-US', {
-        month: 'short',
-        year: 'numeric',
-      });
-      const sizeKB = repo.size;
-      const sizeLabel = sizeKB >= 1024 ? `${(sizeKB / 1024).toFixed(1)} MB` : `${sizeKB} KB`;
-
-      // Per-repo language bar
-      const repoLangs = langResults[i];
-      const langTotal = Object.values(repoLangs).reduce((a, b) => a + b, 0);
-      const langEntries = Object.entries(repoLangs).sort((a, b) => b[1] - a[1]);
-      let langBarHTML = '';
-      let langLabelsHTML = '';
-      if (langEntries.length > 0) {
-        const segments = langEntries
-          .map(([lang, bytes]) => {
-            const pct = ((bytes / langTotal) * 100).toFixed(1);
-            const color = LANG_COLORS[lang] || '#8b8b8b';
-            return `<div class="lang-segment" style="width:${pct}%;background:${color}" title="${lang}: ${pct}%"></div>`;
-          })
-          .join('');
-        langBarHTML = `<div class="repo-lang-bar"><div class="lang-bar">${segments}</div></div>`;
-
-        langLabelsHTML = `<div class="repo-lang-labels">${langEntries
-          .map(([lang, bytes]) => {
-            const pct = ((bytes / langTotal) * 100).toFixed(1);
-            const color = LANG_COLORS[lang] || '#8b8b8b';
-            return `<span class="lang-legend-item"><span class="lang-dot" style="background:${color}"></span>${lang} <span class="lang-pct">${pct}%</span></span>`;
-          })
-          .join('')}</div>`;
-      }
-
-      // Bullet points
-      const details = REPO_DETAILS[repo.name];
-      let bulletsHTML = '';
-      if (details && details.bullets) {
-        bulletsHTML = `<ul class="repo-bullets">${details.bullets.map((b) => `<li>${b}</li>`).join('')}</ul>`;
-      }
-
-      card.innerHTML = `
-        <div class="repo-header">
-          <h3><a href="${repo.html_url}" target="_blank" rel="noreferrer">${repo.name}</a></h3>
-          <div class="repo-badges">
-            ${repo.license ? `<span class="repo-license">${repo.license.spdx_id}</span>` : ''}
-            ${repo.fork ? '<span class="repo-badge fork-badge">Fork</span>' : ''}
-          </div>
-        </div>
-        <p>${repo.description || 'No description provided.'}</p>
-        ${bulletsHTML}
-        ${langBarHTML}
-        ${langLabelsHTML}
-        <div class="repo-stats">
-          ${repo.language ? `<span class="repo-lang"><span class="lang-dot" style="background:${langColor}"></span>${repo.language}</span>` : ''}
-          <span class="repo-stat" title="Stars">&#9733; ${repo.stargazers_count}</span>
-          <span class="repo-stat" title="Forks">&#9741; ${repo.forks_count}</span>
-          <span class="repo-stat" title="Size">&#128230; ${sizeLabel}</span>
-        </div>
-        <div class="repo-dates">
-          <span class="repo-updated">Created ${created}</span>
-          <span class="repo-updated">Updated ${updated}</span>
-        </div>
-      `;
-      grid.appendChild(card);
+    const langColor = LANG_COLORS[repo.language] || '#8b8b8b';
+    const updated = new Date(repo.pushed_at).toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
     });
-  } catch (err) {
-    grid.innerHTML = `<p class="loading-text">Could not load repositories. <a href="https://github.com/${GITHUB_USER}" target="_blank" rel="noreferrer">Visit GitHub profile</a></p>`;
-  }
+    const created = new Date(repo.created_at).toLocaleDateString('en-US', {
+      month: 'short',
+      year: 'numeric',
+    });
+    const sizeKB = repo.size;
+    const sizeLabel = sizeKB >= 1024 ? `${(sizeKB / 1024).toFixed(1)} MB` : `${sizeKB} KB`;
+
+    const repoLangs = (languagesMap && languagesMap[repo.name]) || {};
+    const langTotal = Object.values(repoLangs).reduce((a, b) => a + b, 0);
+    const langEntries = Object.entries(repoLangs).sort((a, b) => b[1] - a[1]);
+    let langBarHTML = '';
+    let langLabelsHTML = '';
+    if (langEntries.length > 0) {
+      const segments = langEntries
+        .map(([lang, bytes]) => {
+          const pct = ((bytes / langTotal) * 100).toFixed(1);
+          const color = LANG_COLORS[lang] || '#8b8b8b';
+          return `<div class="lang-segment" style="width:${pct}%;background:${color}" title="${lang}: ${pct}%"></div>`;
+        })
+        .join('');
+      langBarHTML = `<div class="repo-lang-bar"><div class="lang-bar">${segments}</div></div>`;
+
+      langLabelsHTML = `<div class="repo-lang-labels">${langEntries
+        .map(([lang, bytes]) => {
+          const pct = ((bytes / langTotal) * 100).toFixed(1);
+          const color = LANG_COLORS[lang] || '#8b8b8b';
+          return `<span class="lang-legend-item"><span class="lang-dot" style="background:${color}"></span>${lang} <span class="lang-pct">${pct}%</span></span>`;
+        })
+        .join('')}</div>`;
+    }
+
+    const details = REPO_DETAILS[repo.name];
+    const bulletsHTML = details && details.bullets
+      ? `<ul class="repo-bullets">${details.bullets.map((b) => `<li>${b}</li>`).join('')}</ul>`
+      : '';
+
+    card.innerHTML = `
+      <div class="repo-header">
+        <h3><a href="${repo.html_url}" target="_blank" rel="noreferrer">${repo.name}</a></h3>
+        <div class="repo-badges">
+          ${repo.license ? `<span class="repo-license">${repo.license.spdx_id}</span>` : ''}
+          ${repo.fork ? '<span class="repo-badge fork-badge">Fork</span>' : ''}
+        </div>
+      </div>
+      <p>${repo.description || 'No description provided.'}</p>
+      ${bulletsHTML}
+      ${langBarHTML}
+      ${langLabelsHTML}
+      <div class="repo-stats">
+        ${repo.language ? `<span class="repo-lang"><span class="lang-dot" style="background:${langColor}"></span>${repo.language}</span>` : ''}
+        <span class="repo-stat" title="Stars">&#9733; ${repo.stargazers_count}</span>
+        <span class="repo-stat" title="Forks">&#9741; ${repo.forks_count}</span>
+        <span class="repo-stat" title="Size">&#128230; ${sizeLabel}</span>
+      </div>
+      <div class="repo-dates">
+        <span class="repo-updated">Created ${created}</span>
+        <span class="repo-updated">Updated ${updated}</span>
+      </div>
+    `;
+    grid.appendChild(card);
+  });
 }
 
 function buildLanguageChart(repos) {
@@ -401,10 +308,12 @@ function buildLanguageChart(repos) {
   });
 
   const total = Object.values(langCount).reduce((a, b) => a + b, 0);
+  if (total === 0) return;
   const sorted = Object.entries(langCount).sort((a, b) => b[1] - a[1]);
   const chart = document.getElementById('language-chart');
+  if (!chart) return;
+  chart.innerHTML = '';
 
-  // Bar
   const bar = document.createElement('div');
   bar.className = 'lang-bar';
   sorted.forEach(([lang, count]) => {
@@ -417,7 +326,6 @@ function buildLanguageChart(repos) {
   });
   chart.appendChild(bar);
 
-  // Legend
   const legend = document.createElement('div');
   legend.className = 'lang-legend';
   sorted.forEach(([lang, count]) => {
@@ -434,7 +342,6 @@ function buildActivityTimeline(repos) {
   const timeline = document.getElementById('activity-timeline');
   if (!timeline) return;
 
-  // Group repos by month of last push
   const monthMap = {};
   repos.forEach((r) => {
     const d = new Date(r.pushed_at);
@@ -442,7 +349,6 @@ function buildActivityTimeline(repos) {
     monthMap[key] = (monthMap[key] || 0) + 1;
   });
 
-  // Get last 12 months
   const months = [];
   const now = new Date();
   for (let i = 11; i >= 0; i--) {
@@ -474,4 +380,57 @@ function buildActivityTimeline(repos) {
   `;
 }
 
-fetchRepos();
+function renderStats(repos) {
+  const languages = [...new Set(repos.map((r) => r.language).filter(Boolean))];
+  const totalStars = repos.reduce((s, r) => s + (r.stargazers_count || 0), 0);
+  const totalForks = repos.reduce((s, r) => s + (r.forks_count || 0), 0);
+  const set = (id, value) => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = value;
+  };
+  set('stat-repos', repos.length);
+  set('stat-languages', languages.length);
+  set('stat-stars', totalStars);
+  set('stat-forks', totalForks);
+}
+
+async function loadAndRender() {
+  const grid = document.getElementById('repo-grid');
+  try {
+    const res = await fetch(`${DATA_URL}?v=${Date.now()}`);
+    if (!res.ok) {
+      throw new Error(`${DATA_URL} -> ${res.status}`);
+    }
+    const data = await res.json();
+    const repos = Array.isArray(data.repos) ? data.repos : [];
+
+    if (repos.length === 0) {
+      const msg = 'Site data is still being generated. The Build site data workflow needs to finish — usually within a minute of the latest push.';
+      const featuredGrid = document.getElementById('featured-grid');
+      if (featuredGrid) featuredGrid.innerHTML = `<p class="loading-text">${msg}</p>`;
+      if (grid) grid.innerHTML = `<p class="loading-text"><a href="https://github.com/${GITHUB_USER}" target="_blank" rel="noreferrer">Visit GitHub profile</a> in the meantime.</p>`;
+      return;
+    }
+
+    const sorted = [...repos].sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+    renderStats(sorted);
+    buildLanguageChart(sorted);
+    buildActivityTimeline(sorted);
+
+    const featuredNames = renderFeaturedProjects(sorted, data.featured || {});
+    const regular = sorted.filter((r) => !featuredNames.includes(r.name));
+    renderRegularGrid(regular, data.languages || {});
+  } catch (err) {
+    console.error('loadAndRender failed:', err);
+    const reason =
+      location.protocol === 'file:'
+        ? 'Open the page via a local web server (e.g. "python -m http.server"). Browsers block fetching local JSON from file:// URLs.'
+        : 'Could not load site data. The build may not have run yet — push to main to trigger the Build site data workflow.';
+    if (grid) {
+      grid.innerHTML = `<p class="loading-text">${reason} <a href="https://github.com/${GITHUB_USER}" target="_blank" rel="noreferrer">Visit GitHub profile</a></p>`;
+    }
+  }
+}
+
+loadAndRender();
