@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-15T07:58:52.035Z",
+  "generatedAt": "2026-05-15T08:05:24.879Z",
   "user": "FelexHill7",
   "repos": [
     {
@@ -234,6 +234,10 @@
     "visionTransformer": {
       "Python": 23522
     },
+    "weatherTrendForecasting": {
+      "Jupyter Notebook": 4222895,
+      "HTML": 47453
+    },
     "weatherapp": {
       "Java": 56356,
       "JavaScript": 43019,
@@ -242,6 +246,10 @@
     },
     "pomodoroapp": {
       "Java": 3258
+    },
+    "RxRead": {
+      "Python": 131084,
+      "HTML": 16523
     },
     "Calculator": {
       "Java": 12080,
@@ -257,6 +265,10 @@
     "SVM-monitoring": {
       "Python": 3295,
       "Dockerfile": 188
+    },
+    "cancerdetection": {
+      "Jupyter Notebook": 1067104,
+      "Python": 5704
     },
     "IluvDocker": {
       "Python": 2800,

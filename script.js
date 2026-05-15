@@ -120,7 +120,7 @@ const REPO_DETAILS = {
   },
 };
 
-function renderFeaturedProjects(repos, featuredImages) {
+function renderFeaturedProjects(repos, featuredImages, languagesMap) {
   const grid = document.getElementById('featured-grid');
   if (!grid) return [];
   grid.innerHTML = '';
@@ -181,6 +181,30 @@ function renderFeaturedProjects(repos, featuredImages) {
     const sizeKB = repo.size;
     const sizeLabel = sizeKB >= 1024 ? `${(sizeKB / 1024).toFixed(1)} MB` : `${sizeKB} KB`;
 
+    const repoLangs = (languagesMap && languagesMap[repo.name]) || {};
+    const langTotal = Object.values(repoLangs).reduce((a, b) => a + b, 0);
+    const langEntries = Object.entries(repoLangs).sort((a, b) => b[1] - a[1]);
+    let langBarHTML = '<div class="repo-lang-bar"><div class="lang-bar"></div></div>';
+    let langLabelsHTML = '';
+    if (langEntries.length > 0) {
+      const segments = langEntries
+        .map(([lang, bytes]) => {
+          const pct = ((bytes / langTotal) * 100).toFixed(1);
+          const color = LANG_COLORS[lang] || '#8b8b8b';
+          return `<div class="lang-segment" style="width:${pct}%;background:${color}" title="${lang}: ${pct}%"></div>`;
+        })
+        .join('');
+      langBarHTML = `<div class="repo-lang-bar"><div class="lang-bar">${segments}</div></div>`;
+
+      langLabelsHTML = `<div class="repo-lang-labels">${langEntries
+        .map(([lang, bytes]) => {
+          const pct = ((bytes / langTotal) * 100).toFixed(1);
+          const color = LANG_COLORS[lang] || '#8b8b8b';
+          return `<span class="lang-legend-item"><span class="lang-dot" style="background:${color}"></span>${lang} <span class="lang-pct">${pct}%</span></span>`;
+        })
+        .join('')}</div>`;
+    }
+
     const card = document.createElement('article');
     card.className = 'featured-card';
     card.innerHTML = `
@@ -195,7 +219,8 @@ function renderFeaturedProjects(repos, featuredImages) {
           </div>
           <p class="featured-desc">${featured.description}</p>
           ${bulletsHTML}
-          <div class="repo-lang-bar"><div class="lang-bar"></div></div>
+          ${langBarHTML}
+          ${langLabelsHTML}
           <div class="repo-stats">
             ${repo.language ? `<span class="repo-lang"><span class="lang-dot" style="background:${langColor}"></span>${repo.language}</span>` : ''}
             <span class="repo-stat" title="Stars">&#9733; ${repo.stargazers_count}</span>
@@ -418,7 +443,7 @@ async function loadAndRender() {
     buildLanguageChart(sorted);
     buildActivityTimeline(sorted);
 
-    const featuredNames = renderFeaturedProjects(sorted, data.featured || {});
+    const featuredNames = renderFeaturedProjects(sorted, data.featured || {}, data.languages || {});
     const regular = sorted.filter((r) => !featuredNames.includes(r.name));
     renderRegularGrid(regular, data.languages || {});
   } catch (err) {

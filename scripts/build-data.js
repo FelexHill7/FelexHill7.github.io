@@ -170,10 +170,9 @@ async function main() {
       r.name !== `${GITHUB_USER}.github.io`
   );
 
-  // Languages for every owned repo (so the regular grid still gets per-repo bars)
+  // Languages for every owned repo (featured grid + regular grid both render per-repo bars)
   const languages = {};
   for (const r of owned) {
-    if (FEATURED_NAMES.has(r.name)) continue;
     try {
       languages[r.name] = await gh(r.languages_url);
     } catch (e) {
