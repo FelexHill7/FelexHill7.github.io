@@ -74,8 +74,8 @@ Because this repository is named `FelexHill7.github.io`, GitHub serves it automa
 ## Customize
 
 - **Hero, About, Contact** — Edit text directly in `index.html`.
-- **Featured Projects** — Update the `FEATURED_REPOS` array in `script.js` (title, description, bullets, `maxImages`) and the `FEATURED` list in `scripts/build-data.js` (must match by `name`).
-- **Other Repo Descriptions** — Edit the `REPO_DETAILS` map in `script.js`. Each entry can set a `description` (overrides the GitHub description on the card) and a list of `bullets`.
+- **Featured Projects** — Update the `FEATURED_REPOS` array in `script.js` (title, bullets, `maxImages`) and the `FEATURED` list in `scripts/build-data.js` (must match by `name`). Descriptions come from the GitHub repo itself.
+- **Other Repo Descriptions** — Edit the description directly on the GitHub repo (`gh repo edit <repo> --description "..."`). The site picks it up on the next build.
 - **Colors & Layout** — Adjust CSS custom properties at the top of `styles.css`.
 - **GitHub User** — Change the `GITHUB_USER` constant in both `script.js` and `scripts/build-data.js` to point at a different profile.
 - **Language Colors** — Update the `LANG_COLORS` map in `script.js` to tweak the dot/bar colors.

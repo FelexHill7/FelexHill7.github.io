@@ -30,7 +30,6 @@ const FEATURED_REPOS = [
   {
     name: 'cancerdetection',
     title: 'Breast Cancer Detection',
-    description: 'End-to-end ML pipeline classifying breast tumors as benign or malignant using SVM, Logistic Regression, and Neural Networks — all achieving 96%+ accuracy.',
     bullets: [
       'Trained SVM, Logistic Regression & Neural Network classifiers',
       'Preprocessed clinical data with One-Hot Encoding & standardization',
@@ -43,7 +42,6 @@ const FEATURED_REPOS = [
   {
     name: 'RxRead',
     title: 'RxRead — Handwriting OCR Comparison',
-    description: 'Web app comparing four handwriting OCR backends side-by-side: a from-scratch ResNet-CRNN, Microsoft TrOCR (line and whole-image), and Google Gemini vision, with an optional prescription-mode post-processor.',
     bullets: [
       'From-scratch ResNet-18 + BiLSTM + CTC word-level CRNN (~24% CER)',
       'TrOCR & Gemini Vision backends for production-grade comparison',
@@ -56,7 +54,6 @@ const FEATURED_REPOS = [
   {
     name: 'weatherTrendForecasting',
     title: 'Weather Trend Forecasting',
-    description: 'End-to-end data science project on the Global Weather Repository (40+ features, worldwide) with anomaly detection, SARIMA & Prophet forecasting, ensemble methods, and spatial visualization.',
     bullets: [
       'Anomaly detection: Z-score, IQR, Isolation Forest, LOF',
       'Time series: ADF stationarity, seasonal decomposition, ACF/PACF',
@@ -74,57 +71,6 @@ const FEATURED_CONFIG = FEATURED_REPOS.reduce((acc, repo) => {
   return acc;
 }, {});
 
-const REPO_DETAILS = {
-  visionTransformer: {
-    description: 'Vision Transformer (ViT) experiments in PyTorch — patch-based self-attention applied to image classification, with a focus on understanding how transformer architectures generalize beyond NLP.',
-    bullets: ['Patch embedding + positional encoding', 'Multi-head self-attention on image tokens', 'Built and trained from scratch in PyTorch'],
-  },
-  weatherapp: {
-    description: 'Lightweight weather client that pulls live conditions and short-range forecasts from a public weather API and renders them in a clean, responsive UI.',
-    bullets: ['Live weather + forecast fetch', 'Location search and unit toggle', 'Responsive single-page layout'],
-  },
-  pomodoroapp: {
-    description: 'A focus timer built around the Pomodoro technique — configurable work/break intervals, session counter, and minimal distraction-free interface.',
-    bullets: ['Configurable work / short / long break cycles', 'Session counter and notifications', 'Minimal, focus-first UI'],
-  },
-  Calculator: {
-    description: 'Java console calculator supporting standard arithmetic with input validation and graceful error handling. A small project focused on clean OOP structure.',
-    bullets: ['Basic arithmetic operations', 'Input validation and error handling', 'Clean Java console interface'],
-  },
-  tictactoe: {
-    description: 'Classic two-player Tic-Tac-Toe in Java with full win/draw detection — written as a small exercise in game state modeling and turn loops.',
-    bullets: ['Two-player turn logic', 'Win and draw detection', 'Console-based UI'],
-  },
-  'lab3-ci-testing': {
-    description: 'Python lab project demonstrating a full CI pipeline — automated test suite running on GitHub Actions with a build-status badge in the README.',
-    bullets: ['GitHub Actions CI pipeline', 'Automated Python test suite', 'Build status badge integration'],
-  },
-  'SVM-monitoring': {
-    description: 'Support Vector Machine classifier paired with lightweight model-performance monitoring — tracks key metrics across runs so model drift is easy to spot.',
-    bullets: ['SVM classifier implementation', 'Run-over-run performance tracking', 'MIT-licensed and open source'],
-  },
-  IluvDocker: {
-    description: 'Containerization lab packaging a small Python app into a Docker image — covers Dockerfile basics, image layering, and runtime configuration.',
-    bullets: ['Dockerfile + image build', 'Python app containerization', 'Environment configuration via env vars'],
-  },
-  'UML-Test-1': {
-    description: 'Software design exercise modeling an object-oriented system with UML — class diagrams, sequence diagrams, and the design patterns that link them.',
-    bullets: ['Class and sequence diagrams', 'OOP design pattern modeling', 'Documentation-first design exercise'],
-  },
-  'k-means-visualization-demo': {
-    description: 'Interactive demo that visualizes K-Means clustering as it converges — useful for building intuition around centroid initialization and assignment steps.',
-    bullets: ['K-Means clustering from scratch', 'Step-by-step visualization', 'Python scientific computing stack'],
-  },
-  Bin2dec: {
-    description: 'Small binary-to-decimal converter focused on solid input validation and a clean, beginner-friendly interface.',
-    bullets: ['Binary → decimal conversion', 'Robust input validation', 'Minimal UI'],
-  },
-  PixelCraft: {
-    description: 'Java image-processing tool that operates on raw pixel data — applies filters and transformations programmatically rather than through a GUI.',
-    bullets: ['Pixel-level image manipulation', 'Filter and transform pipeline', 'Java graphics programming'],
-  },
-};
-
 function renderFeaturedProjects(repos, featuredImages, featuredNotebooks, languagesMap) {
   const grid = document.getElementById('featured-grid');
   if (!grid) return [];
@@ -140,7 +86,7 @@ function renderFeaturedProjects(repos, featuredImages, featuredNotebooks, langua
       return {
         repo,
         title: config.title || repo.name,
-        description: config.description || repo.description || 'A repository with visual outputs.',
+        description: repo.description || 'A repository with visual outputs.',
         bullets: config.bullets || [],
         maxImages: config.maxImages || 6,
         images,
@@ -382,11 +328,6 @@ function renderRegularGrid(repos, languagesMap) {
         .join('')}</div>`;
     }
 
-    const details = REPO_DETAILS[repo.name];
-    const bulletsHTML = details && details.bullets
-      ? `<ul class="repo-bullets">${details.bullets.map((b) => `<li>${b}</li>`).join('')}</ul>`
-      : '';
-
     card.innerHTML = `
       <div class="repo-header">
         <h3><a href="${repo.html_url}" target="_blank" rel="noreferrer">${repo.name}</a></h3>
@@ -395,8 +336,7 @@ function renderRegularGrid(repos, languagesMap) {
           ${repo.fork ? '<span class="repo-badge fork-badge">Fork</span>' : ''}
         </div>
       </div>
-      <p>${(details && details.description) || repo.description || 'No description provided.'}</p>
-      ${bulletsHTML}
+      <p>${repo.description || 'No description provided.'}</p>
       ${langBarHTML}
       ${langLabelsHTML}
       <div class="repo-stats">
