@@ -1,8 +1,0 @@
-{
-  "permissions": {
-    "allow": [
-      "PowerShell(\\(Get-Content script.js | Measure-Object -Line\\).Lines)",
-      "Bash(python -c \"import json,sys; d=json.load\\(sys.stdin\\); [print\\(f'{r[\\\\\"name\\\\\"]}: {r.get\\(\\\\\"description\\\\\"\\) or \\\\\"\\(none\\)\\\\\"}'\\) for r in d['repos']]\")"
-    ]
-  }
-}
