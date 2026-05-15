@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-15T08:37:02.590Z",
+  "generatedAt": "2026-05-15T08:37:34.539Z",
   "user": "FelexHill7",
   "repos": [
     {
@@ -284,5 +284,35 @@
       "Java": 14956
     },
     "Bin2dec": {}
+  },
+  "featured": {
+    "cancerdetection": [],
+    "RxRead": [
+      "https://raw.githubusercontent.com/FelexHill7/RxRead/master/outputs/confusion_matrix.png",
+      "https://raw.githubusercontent.com/FelexHill7/RxRead/master/outputs/training_curves.png"
+    ],
+    "weatherTrendForecasting": [
+      "https://raw.githubusercontent.com/FelexHill7/weatherTrendForecasting/main/plots/acf_pacf.png",
+      "https://raw.githubusercontent.com/FelexHill7/weatherTrendForecasting/main/plots/air_quality_distributions.png",
+      "https://raw.githubusercontent.com/FelexHill7/weatherTrendForecasting/main/plots/aq_scatter.png",
+      "https://raw.githubusercontent.com/FelexHill7/weatherTrendForecasting/main/plots/aq_weather_correlation.png",
+      "https://raw.githubusercontent.com/FelexHill7/weatherTrendForecasting/main/plots/climate_normals.png",
+      "https://raw.githubusercontent.com/FelexHill7/weatherTrendForecasting/main/plots/climate_variability.png",
+      "https://raw.githubusercontent.com/FelexHill7/weatherTrendForecasting/main/plots/correlation_heatmap.png",
+      "https://raw.githubusercontent.com/FelexHill7/weatherTrendForecasting/main/plots/feature_importance.png",
+      "https://raw.githubusercontent.com/FelexHill7/weatherTrendForecasting/main/plots/geographic_patterns.png",
+      "https://raw.githubusercontent.com/FelexHill7/weatherTrendForecasting/main/plots/missing_values.png",
+      "https://raw.githubusercontent.com/FelexHill7/weatherTrendForecasting/main/plots/ml_anomaly_detection.png",
+      "https://raw.githubusercontent.com/FelexHill7/weatherTrendForecasting/main/plots/model_comparison.png"
+    ]
+  },
+  "featured_notebooks": {
+    "cancerdetection": [
+      "https://raw.githubusercontent.com/FelexHill7/cancerdetection/main/notebooks/data_preprocessor.ipynb",
+      "https://raw.githubusercontent.com/FelexHill7/cancerdetection/main/notebooks/logistic_regression.ipynb",
+      "https://raw.githubusercontent.com/FelexHill7/cancerdetection/main/notebooks/model_comparison.ipynb",
+      "https://raw.githubusercontent.com/FelexHill7/cancerdetection/main/notebooks/neural_network.ipynb",
+      "https://raw.githubusercontent.com/FelexHill7/cancerdetection/main/notebooks/svm_classifier.ipynb"
+    ]
   }
 }
