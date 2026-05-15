@@ -442,6 +442,7 @@ section {
   scrollbar-color: var(--line) transparent;
   padding-bottom: 0.3rem;
   border-radius: 0.6rem;
+  min-height: 100px;
 }
 
 .gallery-scroll::-webkit-scrollbar {
@@ -464,6 +465,19 @@ section {
   border: 1px solid var(--line);
   border-radius: 0.5rem;
   scroll-snap-align: start;
+}
+
+.gallery-loading {
+  flex: 0 0 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.6rem 1rem;
+  background: var(--bg-soft);
+  border: 1px dashed var(--line);
+  border-radius: 0.5rem;
+  color: var(--muted);
+  font-size: 0.85rem;
 }
 
 .gallery-nav {

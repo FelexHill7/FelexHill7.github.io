@@ -284,38 +284,5 @@
       "Java": 14956
     },
     "Bin2dec": {}
-  },
-  "featured": {
-    "cancerdetection": [
-      "data/images/cancerdetection-0.png",
-      "data/images/cancerdetection-1.png",
-      "data/images/cancerdetection-2.png",
-      "data/images/cancerdetection-3.png",
-      "data/images/cancerdetection-4.png",
-      "data/images/cancerdetection-5.png",
-      "data/images/cancerdetection-6.png",
-      "data/images/cancerdetection-7.png",
-      "data/images/cancerdetection-8.png",
-      "data/images/cancerdetection-9.png",
-      "data/images/cancerdetection-10.png"
-    ],
-    "RxRead": [
-      "https://raw.githubusercontent.com/FelexHill7/RxRead/master/outputs/confusion_matrix.png",
-      "https://raw.githubusercontent.com/FelexHill7/RxRead/master/outputs/training_curves.png"
-    ],
-    "weatherTrendForecasting": [
-      "data/images/weatherTrendForecasting-0.png",
-      "data/images/weatherTrendForecasting-1.png",
-      "data/images/weatherTrendForecasting-2.png",
-      "data/images/weatherTrendForecasting-3.png",
-      "data/images/weatherTrendForecasting-4.png",
-      "data/images/weatherTrendForecasting-5.png",
-      "data/images/weatherTrendForecasting-6.png",
-      "data/images/weatherTrendForecasting-7.png",
-      "data/images/weatherTrendForecasting-8.png",
-      "data/images/weatherTrendForecasting-9.png",
-      "data/images/weatherTrendForecasting-10.png",
-      "data/images/weatherTrendForecasting-11.png"
-    ]
   }
 }

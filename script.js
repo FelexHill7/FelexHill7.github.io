@@ -26,7 +26,6 @@ const LANG_COLORS = {
   PHP: '#4F5D95',
 };
 
-// Featured projects config — display metadata for repos pre-baked by scripts/build-data.js
 const FEATURED_REPOS = [
   {
     name: 'cancerdetection',
@@ -76,51 +75,57 @@ const FEATURED_CONFIG = FEATURED_REPOS.reduce((acc, repo) => {
 }, {});
 
 const REPO_DETAILS = {
-  'Calculator': {
-    bullets: ['Basic arithmetic operations', 'Clean Java console interface', 'Input validation & error handling'],
+  visionTransformer: {
+    description: 'Vision Transformer (ViT) experiments in PyTorch — patch-based self-attention applied to image classification, with a focus on understanding how transformer architectures generalize beyond NLP.',
+    bullets: ['Patch embedding + positional encoding', 'Multi-head self-attention on image tokens', 'Built and trained from scratch in PyTorch'],
   },
-  'tictactoe': {
-    bullets: ['Two-player game logic', 'Win/draw detection algorithm', 'Java console-based UI'],
+  weatherapp: {
+    description: 'Lightweight weather client that pulls live conditions and short-range forecasts from a public weather API and renders them in a clean, responsive UI.',
+    bullets: ['Live weather + forecast fetch', 'Location search and unit toggle', 'Responsive single-page layout'],
+  },
+  pomodoroapp: {
+    description: 'A focus timer built around the Pomodoro technique — configurable work/break intervals, session counter, and minimal distraction-free interface.',
+    bullets: ['Configurable work / short / long break cycles', 'Session counter and notifications', 'Minimal, focus-first UI'],
+  },
+  Calculator: {
+    description: 'Java console calculator supporting standard arithmetic with input validation and graceful error handling. A small project focused on clean OOP structure.',
+    bullets: ['Basic arithmetic operations', 'Input validation and error handling', 'Clean Java console interface'],
+  },
+  tictactoe: {
+    description: 'Classic two-player Tic-Tac-Toe in Java with full win/draw detection — written as a small exercise in game state modeling and turn loops.',
+    bullets: ['Two-player turn logic', 'Win and draw detection', 'Console-based UI'],
   },
   'lab3-ci-testing': {
+    description: 'Python lab project demonstrating a full CI pipeline — automated test suite running on GitHub Actions with a build-status badge in the README.',
     bullets: ['GitHub Actions CI pipeline', 'Automated Python test suite', 'Build status badge integration'],
   },
   'SVM-monitoring': {
-    bullets: ['Support Vector Machine classifier', 'Model performance monitoring', 'MIT licensed open-source project'],
+    description: 'Support Vector Machine classifier paired with lightweight model-performance monitoring — tracks key metrics across runs so model drift is easy to spot.',
+    bullets: ['SVM classifier implementation', 'Run-over-run performance tracking', 'MIT-licensed and open source'],
   },
-  'Ticketing-Site': {
-    bullets: ['Event ticketing platform', 'Java-based backend architecture', 'User booking & management flow'],
-  },
-  'cancerdetection': {
-    bullets: ['ML classification model', 'Jupyter Notebook analysis', 'Medical dataset preprocessing'],
-  },
-  'IluvDocker': {
-    bullets: ['Docker container setup', 'Python app containerization', 'Lab test environment config'],
+  IluvDocker: {
+    description: 'Containerization lab packaging a small Python app into a Docker image — covers Dockerfile basics, image layering, and runtime configuration.',
+    bullets: ['Dockerfile + image build', 'Python app containerization', 'Environment configuration via env vars'],
   },
   'UML-Test-1': {
-    bullets: ['UML diagram modeling', 'Software design patterns', 'Class & sequence diagrams'],
+    description: 'Software design exercise modeling an object-oriented system with UML — class diagrams, sequence diagrams, and the design patterns that link them.',
+    bullets: ['Class and sequence diagrams', 'OOP design pattern modeling', 'Documentation-first design exercise'],
   },
   'k-means-visualization-demo': {
-    bullets: ['K-Means clustering algorithm', 'Interactive data visualization', 'Python scientific computing'],
+    description: 'Interactive demo that visualizes K-Means clustering as it converges — useful for building intuition around centroid initialization and assignment steps.',
+    bullets: ['K-Means clustering from scratch', 'Step-by-step visualization', 'Python scientific computing stack'],
   },
-  'Bin2dec': {
-    bullets: ['Binary to decimal converter', 'Input validation logic', 'Clean user interface'],
+  Bin2dec: {
+    description: 'Small binary-to-decimal converter focused on solid input validation and a clean, beginner-friendly interface.',
+    bullets: ['Binary → decimal conversion', 'Robust input validation', 'Minimal UI'],
   },
-  'PixelCraft': {
-    bullets: ['Image manipulation tool', 'Pixel-level processing', 'Java graphics programming'],
-  },
-  'bookstore-lab5': {
-    bullets: ['Tree traversal algorithms', 'Binary search tree operations', 'Java data structures lab'],
-  },
-  'bookstore-lab2': {
-    bullets: ['Bookstore inventory system', 'Data structure fundamentals', 'Java OOP design'],
-  },
-  'app-ideas': {
-    bullets: ['Curated project ideas collection', 'Beginner to advanced projects', 'Community coding resource'],
+  PixelCraft: {
+    description: 'Java image-processing tool that operates on raw pixel data — applies filters and transformations programmatically rather than through a GUI.',
+    bullets: ['Pixel-level image manipulation', 'Filter and transform pipeline', 'Java graphics programming'],
   },
 };
 
-function renderFeaturedProjects(repos, featuredImages, languagesMap) {
+function renderFeaturedProjects(repos, featuredImages, featuredNotebooks, languagesMap) {
   const grid = document.getElementById('featured-grid');
   if (!grid) return [];
   grid.innerHTML = '';
@@ -131,6 +136,7 @@ function renderFeaturedProjects(repos, featuredImages, languagesMap) {
       if (!repo) return null;
       const config = FEATURED_CONFIG[name] || {};
       const images = (featuredImages && featuredImages[name]) || [];
+      const notebooks = (featuredNotebooks && featuredNotebooks[name]) || [];
       return {
         repo,
         title: config.title || repo.name,
@@ -138,6 +144,7 @@ function renderFeaturedProjects(repos, featuredImages, languagesMap) {
         bullets: config.bullets || [],
         maxImages: config.maxImages || 6,
         images,
+        notebooks,
       };
     })
     .filter(Boolean);
@@ -155,25 +162,32 @@ function renderFeaturedProjects(repos, featuredImages, languagesMap) {
       : '';
 
     const imageSet = featured.images.slice(0, featured.maxImages);
-    const galleryHTML = imageSet.length
+    const hasInitialImages = imageSet.length > 0;
+    const hasNotebooks = featured.notebooks.length > 0;
+    const hasAnyVisuals = hasInitialImages || hasNotebooks;
+
+    const imgsHTML = imageSet
+      .map(
+        (src, i) =>
+          `<img src="${src}" alt="${title} visualization ${i + 1}" loading="lazy" />`
+      )
+      .join('');
+    const loadingHTML = hasNotebooks
+      ? `<div class="gallery-loading" id="gallery-loading-${repo.name}">Extracting notebook visualizations…</div>`
+      : '';
+
+    const galleryHTML = hasAnyVisuals
       ? `
         <div class="featured-gallery">
           <div class="gallery-scroll" id="gallery-${repo.name}">
-            ${imageSet
-              .map(
-                (src, i) =>
-                  `<img src="${src}" alt="${title} visualization ${i + 1}" loading="lazy" />`
-              )
-              .join('')}
+            ${imgsHTML}
+            ${loadingHTML}
           </div>
-          ${imageSet.length > 1
-            ? `
-          <div class="gallery-nav">
+          <div class="gallery-nav" id="gallery-nav-${repo.name}" ${imageSet.length > 1 ? '' : 'hidden'}>
             <button class="gallery-btn" onclick="scrollGallery('${repo.name}', -1)" aria-label="Previous">&#8249;</button>
-            <span class="gallery-count">${imageSet.length} visualizations</span>
+            <span class="gallery-count" id="gallery-count-${repo.name}">${imageSet.length} visualization${imageSet.length === 1 ? '' : 's'}</span>
             <button class="gallery-btn" onclick="scrollGallery('${repo.name}', 1)" aria-label="Next">&#8250;</button>
-          </div>`
-            : ''}
+          </div>
         </div>`
       : `<div class="featured-placeholder"><span>&#128202;</span> View visualizations on <a href="${repo.html_url}" target="_blank" rel="noreferrer">GitHub</a></div>`;
 
@@ -236,7 +250,7 @@ function renderFeaturedProjects(repos, featuredImages, languagesMap) {
     grid.appendChild(card);
   }
 
-  return featuredRepos.map((item) => item.repo.name);
+  return featuredRepos;
 }
 
 function scrollGallery(name, dir) {
@@ -244,6 +258,82 @@ function scrollGallery(name, dir) {
   if (!el) return;
   const scrollAmount = el.clientWidth * 0.8;
   el.scrollBy({ left: dir * scrollAmount, behavior: 'smooth' });
+}
+
+const NOTEBOOK_MIME_PRIORITY = ['image/png', 'image/jpeg', 'image/gif', 'image/svg+xml'];
+
+function extractImagesFromNotebook(nb, max) {
+  const dataUrls = [];
+  for (const cell of nb.cells || []) {
+    if (dataUrls.length >= max) break;
+    for (const output of cell.outputs || []) {
+      if (dataUrls.length >= max) break;
+      const data = output.data;
+      if (!data) continue;
+      for (const mime of NOTEBOOK_MIME_PRIORITY) {
+        if (!data[mime]) continue;
+        const raw = Array.isArray(data[mime]) ? data[mime].join('') : data[mime];
+        let dataUrl;
+        if (mime === 'image/svg+xml') {
+          dataUrl = `data:image/svg+xml;base64,${btoa(unescape(encodeURIComponent(raw)))}`;
+        } else {
+          dataUrl = `data:${mime};base64,${raw.replace(/\s+/g, '')}`;
+        }
+        dataUrls.push(dataUrl);
+        break;
+      }
+    }
+  }
+  return dataUrls;
+}
+
+async function fetchNotebookImages(notebookUrl, max) {
+  try {
+    const res = await fetch(notebookUrl);
+    if (!res.ok) return [];
+    const nb = await res.json();
+    return extractImagesFromNotebook(nb, max);
+  } catch (e) {
+    console.warn(`notebook fetch failed for ${notebookUrl}:`, e);
+    return [];
+  }
+}
+
+async function enhanceWithNotebookImages(featuredItems) {
+  for (const featured of featuredItems) {
+    if (!featured.notebooks || featured.notebooks.length === 0) continue;
+
+    const name = featured.repo.name;
+    const scrollEl = document.getElementById(`gallery-${name}`);
+    const loadingEl = document.getElementById(`gallery-loading-${name}`);
+    const countEl = document.getElementById(`gallery-count-${name}`);
+    const navEl = document.getElementById(`gallery-nav-${name}`);
+    if (!scrollEl) continue;
+
+    let total = featured.images.length;
+    let remaining = featured.maxImages - total;
+
+    for (const nbUrl of featured.notebooks) {
+      if (remaining <= 0) break;
+      const newImages = await fetchNotebookImages(nbUrl, remaining);
+      for (const src of newImages) {
+        const img = document.createElement('img');
+        img.loading = 'lazy';
+        img.alt = `${featured.title} visualization ${total + 1}`;
+        img.src = src;
+        scrollEl.insertBefore(img, loadingEl || null);
+        total += 1;
+      }
+      remaining = featured.maxImages - total;
+    }
+
+    if (loadingEl) loadingEl.remove();
+    if (countEl) countEl.textContent = `${total} visualization${total === 1 ? '' : 's'}`;
+    if (navEl) {
+      if (total > 1) navEl.removeAttribute('hidden');
+      else navEl.setAttribute('hidden', '');
+    }
+  }
 }
 
 function renderRegularGrid(repos, languagesMap) {
@@ -305,7 +395,7 @@ function renderRegularGrid(repos, languagesMap) {
           ${repo.fork ? '<span class="repo-badge fork-badge">Fork</span>' : ''}
         </div>
       </div>
-      <p>${repo.description || 'No description provided.'}</p>
+      <p>${(details && details.description) || repo.description || 'No description provided.'}</p>
       ${bulletsHTML}
       ${langBarHTML}
       ${langLabelsHTML}
@@ -443,9 +533,17 @@ async function loadAndRender() {
     buildLanguageChart(sorted);
     buildActivityTimeline(sorted);
 
-    const featuredNames = renderFeaturedProjects(sorted, data.featured || {}, data.languages || {});
+    const featuredItems = renderFeaturedProjects(
+      sorted,
+      data.featured || {},
+      data.featured_notebooks || {},
+      data.languages || {}
+    );
+    const featuredNames = featuredItems.map((f) => f.repo.name);
     const regular = sorted.filter((r) => !featuredNames.includes(r.name));
     renderRegularGrid(regular, data.languages || {});
+
+    enhanceWithNotebookImages(featuredItems);
   } catch (err) {
     console.error('loadAndRender failed:', err);
     const reason =

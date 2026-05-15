@@ -1,8 +1,13 @@
 #!/usr/bin/env node
 /**
- * Pre-bakes data/repos.json + data/images/* by hitting the GitHub API once.
+ * Pre-bakes data/repos.json by hitting the GitHub API once.
  * Runs in CI under a GITHUB_TOKEN so it can use the 5000/hr authenticated quota
  * instead of the 60/hr unauthenticated cap the browser would otherwise hit.
+ *
+ * Featured visuals come from two sources, both fetched at runtime by the browser
+ * (no notebook bytes / images committed to this repo):
+ *   1. Standalone image files in the repo (raw.githubusercontent.com URLs)
+ *   2. .ipynb files — browser fetches the notebook, decodes base64 cell outputs
  */
 
 const fs = require('fs/promises');
@@ -25,14 +30,7 @@ const FEATURED = [
 ];
 const FEATURED_NAMES = new Set(FEATURED.map((f) => f.name));
 
-const IMAGE_EXTENSIONS = ['png', 'jpg', 'jpeg', 'gif', 'bmp', 'svg', 'webp'];
-
-const NOTEBOOK_IMAGE_MIME = [
-  { mime: 'image/png', ext: 'png', encoding: 'base64' },
-  { mime: 'image/jpeg', ext: 'jpg', encoding: 'base64' },
-  { mime: 'image/gif', ext: 'gif', encoding: 'base64' },
-  { mime: 'image/svg+xml', ext: 'svg', encoding: 'utf8' },
-];
+const IMAGE_EXTENSIONS = new Set(['png', 'jpg', 'jpeg', 'gif', 'bmp', 'svg', 'webp']);
 
 async function gh(url) {
   const res = await fetch(url, { headers: HEADERS });
@@ -54,77 +52,27 @@ async function fetchTree(repo) {
   }
 }
 
-async function fetchNotebookContent(repoName, notebookPath) {
-  const url = `https://api.github.com/repos/${GITHUB_USER}/${repoName}/contents/${encodeURIComponent(notebookPath).replace(/%2F/g, '/')}`;
-  const fileData = await gh(url);
-  if (fileData.content && fileData.encoding === 'base64') {
-    return Buffer.from(fileData.content, 'base64').toString('utf8');
-  }
-  if (fileData.download_url) {
-    const r = await fetch(fileData.download_url, { headers: HEADERS });
-    if (r.ok) return await r.text();
-  }
-  return null;
+function rawUrl(repo, filePath) {
+  return `https://raw.githubusercontent.com/${GITHUB_USER}/${repo.name}/${repo.default_branch}/${filePath}`;
 }
 
-async function extractNotebookImages(repoName, notebookPath, maxImages) {
-  const content = await fetchNotebookContent(repoName, notebookPath);
-  if (!content) return [];
-  const nb = JSON.parse(content);
-  const images = [];
-  for (const cell of nb.cells || []) {
-    if (images.length >= maxImages) break;
-    for (const output of cell.outputs || []) {
-      if (images.length >= maxImages) break;
-      const data = output.data;
-      if (!data) continue;
-      for (const { mime, ext, encoding } of NOTEBOOK_IMAGE_MIME) {
-        if (!data[mime]) continue;
-        const raw = Array.isArray(data[mime]) ? data[mime].join('') : data[mime];
-        images.push({ source: 'notebook', ext, encoding, raw });
-        break;
-      }
-    }
-  }
-  return images;
-}
-
-async function collectFeaturedImages(repo, maxImages) {
+async function collectFeaturedSources(repo, maxImages) {
   const tree = await fetchTree(repo);
-  const images = [];
-
-  const notebookPaths = tree
-    .filter((i) => i.type === 'blob' && i.path.toLowerCase().endsWith('.ipynb'))
-    .map((i) => i.path);
-
-  for (const nbPath of notebookPaths) {
-    if (images.length >= maxImages) break;
-    try {
-      const more = await extractNotebookImages(repo.name, nbPath, maxImages - images.length);
-      images.push(...more);
-    } catch (e) {
-      console.warn(`notebook ${nbPath} failed:`, e.message);
+  const imageUrls = [];
+  const notebookUrls = [];
+  for (const item of tree) {
+    if (item.type !== 'blob') continue;
+    const lower = item.path.toLowerCase();
+    if (lower.endsWith('.ipynb')) {
+      notebookUrls.push(rawUrl(repo, item.path));
+      continue;
+    }
+    const ext = lower.split('.').pop();
+    if (IMAGE_EXTENSIONS.has(ext) && imageUrls.length < maxImages) {
+      imageUrls.push(rawUrl(repo, item.path));
     }
   }
-
-  if (images.length < maxImages) {
-    const imagePaths = tree
-      .filter(
-        (i) =>
-          i.type === 'blob' &&
-          IMAGE_EXTENSIONS.includes(i.path.split('.').pop().toLowerCase())
-      )
-      .map((i) => i.path);
-    for (const p of imagePaths) {
-      if (images.length >= maxImages) break;
-      images.push({
-        source: 'raw',
-        url: `https://raw.githubusercontent.com/${GITHUB_USER}/${repo.name}/${repo.default_branch}/${p}`,
-      });
-    }
-  }
-
-  return images;
+  return { imageUrls, notebookUrls };
 }
 
 function slimRepo(r) {
@@ -148,13 +96,7 @@ function slimRepo(r) {
 async function main() {
   const root = path.join(__dirname, '..');
   const dataDir = path.join(root, 'data');
-  const imagesDir = path.join(dataDir, 'images');
-  await fs.mkdir(imagesDir, { recursive: true });
-
-  // Clear stale images so renames/removals don't leave orphans
-  for (const f of await fs.readdir(imagesDir).catch(() => [])) {
-    await fs.unlink(path.join(imagesDir, f));
-  }
+  await fs.mkdir(dataDir, { recursive: true });
 
   console.log(`fetching repo list for ${GITHUB_USER}...`);
   const allRepos = await gh(
@@ -170,7 +112,6 @@ async function main() {
       r.name !== `${GITHUB_USER}.github.io`
   );
 
-  // Languages for every owned repo (featured grid + regular grid both render per-repo bars)
   const languages = {};
   for (const r of owned) {
     try {
@@ -181,8 +122,8 @@ async function main() {
     }
   }
 
-  // Featured: gather images, write to data/images/, record relative paths
   const featured = {};
+  const featuredNotebooks = {};
   for (const cfg of FEATURED) {
     const repo = owned.find((r) => r.name === cfg.name);
     if (!repo) {
@@ -190,26 +131,14 @@ async function main() {
       featured[cfg.name] = [];
       continue;
     }
-    console.log(`collecting images for ${repo.name} (max ${cfg.maxImages})...`);
-    const items = await collectFeaturedImages(repo, cfg.maxImages);
-    const urls = [];
-    for (let i = 0; i < items.length; i++) {
-      const item = items[i];
-      if (item.source === 'raw') {
-        urls.push(item.url);
-        continue;
-      }
-      const filename = `${repo.name}-${i}.${item.ext}`;
-      const filepath = path.join(imagesDir, filename);
-      if (item.encoding === 'base64') {
-        await fs.writeFile(filepath, Buffer.from(item.raw, 'base64'));
-      } else {
-        await fs.writeFile(filepath, item.raw, 'utf8');
-      }
-      urls.push(`data/images/${filename}`);
+    console.log(`scraping featured sources for ${repo.name} (max ${cfg.maxImages})...`);
+    const { imageUrls, notebookUrls } = await collectFeaturedSources(repo, cfg.maxImages);
+    featured[repo.name] = imageUrls;
+    // Only expose notebooks if we don't already have enough raw images — saves the browser fetch.
+    if (imageUrls.length < cfg.maxImages && notebookUrls.length > 0) {
+      featuredNotebooks[repo.name] = notebookUrls;
     }
-    featured[repo.name] = urls;
-    console.log(`  -> ${urls.length} image(s)`);
+    console.log(`  -> ${imageUrls.length} image URL(s), ${(featuredNotebooks[repo.name] || []).length} notebook URL(s)`);
   }
 
   const out = {
@@ -218,12 +147,13 @@ async function main() {
     repos: owned.map(slimRepo),
     languages,
     featured,
+    featured_notebooks: featuredNotebooks,
   };
   await fs.writeFile(
     path.join(dataDir, 'repos.json'),
     JSON.stringify(out, null, 2) + '\n'
   );
-  console.log(`done. ${owned.length} repos, ${Object.values(featured).flat().length} featured images.`);
+  console.log(`done. ${owned.length} repos.`);
 }
 
 main().catch((e) => {
