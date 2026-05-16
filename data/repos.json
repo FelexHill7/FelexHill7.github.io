@@ -1,7 +1,22 @@
 {
-  "generatedAt": "2026-05-15T08:55:30.976Z",
+  "generatedAt": "2026-05-16T07:47:03.590Z",
   "user": "FelexHill7",
   "repos": [
+    {
+      "name": "nano-infer",
+      "description": "From-scratch LLM inference engine in PyTorch. MHA/GQA/MQA in one module, RoPE (NeoX/Llama half-rotation), append-only KV cache with numerical parity vs F.scaled_dot_product_attention, RMSNorm + SwiGLU decoder blocks, KV-cached greedy/top-k sampling. Trains a 1M-param GQA transformer on Tiny Shakespeare end-to-end.",
+      "html_url": "https://github.com/FelexHill7/nano-infer",
+      "language": "Python",
+      "default_branch": "main",
+      "size": 21,
+      "stargazers_count": 0,
+      "forks_count": 0,
+      "license": null,
+      "fork": false,
+      "created_at": "2026-05-15T09:03:54Z",
+      "pushed_at": "2026-05-15T09:03:58Z",
+      "updated_at": "2026-05-15T09:10:14Z"
+    },
     {
       "name": "visionTransformer",
       "description": "Vision Transformer (ViT) experiments in PyTorch — patch-based self-attention applied to image classification, with a focus on understanding how transformer architectures generalize beyond NLP.",
@@ -231,6 +246,9 @@
     }
   ],
   "languages": {
+    "nano-infer": {
+      "Python": 42698
+    },
     "visionTransformer": {
       "Python": 23522
     },
