@@ -1,7 +1,37 @@
 {
-  "generatedAt": "2026-07-12T07:55:44.785Z",
+  "generatedAt": "2026-07-13T08:43:29.230Z",
   "user": "FelexHill7",
   "repos": [
+    {
+      "name": "RAG-law",
+      "description": null,
+      "html_url": "https://github.com/FelexHill7/RAG-law",
+      "language": "Python",
+      "default_branch": "main",
+      "size": 0,
+      "stargazers_count": 0,
+      "forks_count": 0,
+      "license": null,
+      "fork": false,
+      "created_at": "2026-07-13T08:22:33Z",
+      "pushed_at": "2026-07-13T08:30:46Z",
+      "updated_at": "2026-07-13T08:31:04Z"
+    },
+    {
+      "name": "Basics-of-Deeplearning-Assignment",
+      "description": null,
+      "html_url": "https://github.com/FelexHill7/Basics-of-Deeplearning-Assignment",
+      "language": "Python",
+      "default_branch": "main",
+      "size": 132113,
+      "stargazers_count": 0,
+      "forks_count": 0,
+      "license": null,
+      "fork": false,
+      "created_at": "2026-07-06T07:03:50Z",
+      "pushed_at": "2026-07-08T03:57:22Z",
+      "updated_at": "2026-07-13T07:34:52Z"
+    },
     {
       "name": "nano-infer",
       "description": "From-scratch LLM inference engine in PyTorch. MHA/GQA/MQA in one module, RoPE (NeoX/Llama half-rotation), append-only KV cache with numerical parity vs F.scaled_dot_product_attention, RMSNorm + SwiGLU decoder blocks, KV-cached greedy/top-k sampling. Trains a 1M-param GQA transformer on Tiny Shakespeare end-to-end.",
@@ -246,6 +276,13 @@
     }
   ],
   "languages": {
+    "RAG-law": {
+      "Python": 6182
+    },
+    "Basics-of-Deeplearning-Assignment": {
+      "Python": 15782,
+      "Jupyter Notebook": 4875
+    },
     "nano-infer": {
       "Python": 42698
     },
