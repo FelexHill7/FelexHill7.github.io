@@ -1,14 +1,29 @@
 {
-  "generatedAt": "2026-07-13T08:43:29.230Z",
+  "generatedAt": "2026-07-14T07:44:11.249Z",
   "user": "FelexHill7",
   "repos": [
+    {
+      "name": "cartpole-rl-comparison",
+      "description": null,
+      "html_url": "https://github.com/FelexHill7/cartpole-rl-comparison",
+      "language": "Jupyter Notebook",
+      "default_branch": "master",
+      "size": 249,
+      "stargazers_count": 0,
+      "forks_count": 0,
+      "license": null,
+      "fork": false,
+      "created_at": "2026-07-14T06:34:37Z",
+      "pushed_at": "2026-07-14T07:31:14Z",
+      "updated_at": "2026-07-14T07:31:22Z"
+    },
     {
       "name": "RAG-law",
       "description": null,
       "html_url": "https://github.com/FelexHill7/RAG-law",
       "language": "Python",
       "default_branch": "main",
-      "size": 0,
+      "size": 2051,
       "stargazers_count": 0,
       "forks_count": 0,
       "license": null,
@@ -276,6 +291,11 @@
     }
   ],
   "languages": {
+    "cartpole-rl-comparison": {
+      "Jupyter Notebook": 381400,
+      "Python": 29341,
+      "Shell": 508
+    },
     "RAG-law": {
       "Python": 6182
     },
