@@ -1,7 +1,22 @@
 {
-  "generatedAt": "2026-07-14T07:44:11.249Z",
+  "generatedAt": "2026-07-15T07:47:27.503Z",
   "user": "FelexHill7",
   "repos": [
+    {
+      "name": "citation-knowledge-agent",
+      "description": null,
+      "html_url": "https://github.com/FelexHill7/citation-knowledge-agent",
+      "language": "Python",
+      "default_branch": "master",
+      "size": 0,
+      "stargazers_count": 0,
+      "forks_count": 0,
+      "license": null,
+      "fork": false,
+      "created_at": "2026-07-15T07:14:37Z",
+      "pushed_at": "2026-07-15T07:14:43Z",
+      "updated_at": "2026-07-15T07:14:50Z"
+    },
     {
       "name": "cartpole-rl-comparison",
       "description": null,
@@ -291,6 +306,10 @@
     }
   ],
   "languages": {
+    "citation-knowledge-agent": {
+      "Python": 23122,
+      "TeX": 6996
+    },
     "cartpole-rl-comparison": {
       "Jupyter Notebook": 381400,
       "Python": 29341,
