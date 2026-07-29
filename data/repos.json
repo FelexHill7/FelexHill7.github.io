@@ -1,7 +1,22 @@
 {
-  "generatedAt": "2026-07-28T08:10:58.629Z",
+  "generatedAt": "2026-07-29T08:15:36.977Z",
   "user": "FelexHill7",
   "repos": [
+    {
+      "name": "betterMaps",
+      "description": "Shared road-trip stop queue: one list the whole car can add to, that the driver re-sorts by nearest, least detour, votes, rating or cost.",
+      "html_url": "https://github.com/FelexHill7/betterMaps",
+      "language": "TypeScript",
+      "default_branch": "main",
+      "size": 105,
+      "stargazers_count": 0,
+      "forks_count": 0,
+      "license": null,
+      "fork": false,
+      "created_at": "2026-07-28T08:39:37Z",
+      "pushed_at": "2026-07-28T08:43:30Z",
+      "updated_at": "2026-07-28T08:45:28Z"
+    },
     {
       "name": "citation-knowledge-agent",
       "description": "Agent that builds a citation knowledge graph from a seed arXiv paper -- discovers references via OpenAlex, classifies them (foundation/baseline/other) with Gemini, and answers questions over the stored graph via MCP tools.",
@@ -306,6 +321,12 @@
     }
   ],
   "languages": {
+    "betterMaps": {
+      "TypeScript": 197979,
+      "CSS": 28785,
+      "JavaScript": 12751,
+      "HTML": 513
+    },
     "citation-knowledge-agent": {
       "Python": 24076
     },
