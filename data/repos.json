@@ -1,7 +1,24 @@
 {
-  "generatedAt": "2026-08-10T07:05:41.084Z",
+  "generatedAt": "2026-08-11T06:43:24.131Z",
   "user": "FelexHill7",
   "repos": [
+    {
+      "name": "cluely-clone",
+      "description": "A Next.js recreation of Cluely's marketing site and chat UI, plus a native transparent overlay window built with Electron. Personal/portfolio project, not affiliated with Cluely.",
+      "html_url": "https://github.com/FelexHill7/cluely-clone",
+      "language": "TypeScript",
+      "default_branch": "main",
+      "size": 1234,
+      "stargazers_count": 0,
+      "forks_count": 0,
+      "license": {
+        "spdx_id": "MIT"
+      },
+      "fork": false,
+      "created_at": "2026-08-11T05:06:14Z",
+      "pushed_at": "2026-08-11T05:06:18Z",
+      "updated_at": "2026-08-11T05:06:33Z"
+    },
     {
       "name": "betterMaps",
       "description": "Shared road-trip stop queue: one list the whole car can add to, that the driver re-sorts by nearest, least detour, votes, rating or cost.",
@@ -321,6 +338,12 @@
     }
   ],
   "languages": {
+    "cluely-clone": {
+      "TypeScript": 242396,
+      "Shell": 29213,
+      "JavaScript": 5811,
+      "CSS": 4878
+    },
     "betterMaps": {
       "TypeScript": 197979,
       "CSS": 28785,
