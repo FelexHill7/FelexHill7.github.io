@@ -1,7 +1,24 @@
 {
-  "generatedAt": "2026-10-15T10:28:47.206Z",
+  "generatedAt": "2026-10-16T10:16:21.954Z",
   "user": "FelexHill7",
   "repos": [
+    {
+      "name": "eclass-digest",
+      "description": "Daily York eClass digest email + Google Calendar deadline sync. Free, runs on your PC or GitHub Actions.",
+      "html_url": "https://github.com/FelexHill7/eclass-digest",
+      "language": "Python",
+      "default_branch": "main",
+      "size": 107,
+      "stargazers_count": 0,
+      "forks_count": 0,
+      "license": {
+        "spdx_id": "MIT"
+      },
+      "fork": false,
+      "created_at": "2026-10-16T08:24:47Z",
+      "pushed_at": "2026-10-16T09:08:11Z",
+      "updated_at": "2026-10-16T09:08:15Z"
+    },
     {
       "name": "diffusion-model-exploration",
       "description": null,
@@ -353,6 +370,10 @@
     }
   ],
   "languages": {
+    "eclass-digest": {
+      "Python": 112216,
+      "PowerShell": 1687
+    },
     "diffusion-model-exploration": {
       "Python": 7360
     },
