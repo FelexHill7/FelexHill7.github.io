@@ -20,7 +20,7 @@ Personal portfolio website built with vanilla HTML, CSS, and JavaScript. Live at
 - CSS3 (custom properties, grid, flexbox)
 - Vanilla JavaScript (GitHub REST API)
 - Node.js build step for the data pipeline
-- GitHub Actions for the scheduled rebuild
+- GitHub Actions for the scheduled rebuild and Pages deploy
 - Google Fonts (Fraunces, Space Grotesk)
 
 ## Project Structure
@@ -31,17 +31,18 @@ styles.css                       — All styling: cards, stats bar, charts, gall
 script.js                        — Renders cards, charts, timeline; fetches notebooks at runtime
 scripts/build-data.js            — CI build step: queries GitHub API, writes data/repos.json
 data/repos.json                  — Generated repo list, language breakdowns, featured sources
-.github/workflows/build-data.yml — Daily + on-push workflow that runs the build step
+.github/workflows/deploy.yml     — Daily + on-push workflow: builds data, deploys to Pages
 ```
 
 ## Data Pipeline
 
 The browser does not call the GitHub API directly — the unauthenticated rate limit (60 req/hr) would block visitors quickly. Instead:
 
-1. `.github/workflows/build-data.yml` runs on every push to `main`, once a day on a schedule, and via manual dispatch.
+1. `.github/workflows/deploy.yml` runs on every push to `main`, once a day on a schedule, and via manual dispatch.
 2. The job executes `scripts/build-data.js` under `GITHUB_TOKEN` (5000 req/hr authenticated quota).
 3. The script writes `data/repos.json` containing slim repo metadata, per-repo language byte counts, image URLs for featured repos, and `.ipynb` URLs for repos whose visuals come from notebooks.
 4. The workflow commits the regenerated `data/repos.json` back to `main` if it changed.
+5. The site files are packaged as a Pages artifact and deployed by `actions/deploy-pages` in the same run.
 
 Featured visuals are referenced by URL only — image bytes never enter this repository.
 
@@ -63,13 +64,11 @@ GITHUB_TOKEN=ghp_yourtoken node scripts/build-data.js
 
 ## Deploy to GitHub Pages
 
-Because this repository is named `FelexHill7.github.io`, GitHub serves it automatically at `https://felexhill7.github.io/`.
+Deployment runs entirely through GitHub Actions — the same `deploy.yml` workflow that rebuilds the data also publishes the site to `https://felexhill7.github.io/`.
 
-1. Commit and push to the `main` branch.
-2. In GitHub, go to **Settings → Pages**.
-3. Under **Build and deployment**, choose **Deploy from a branch**.
-4. Select branch `main` and folder `/ (root)`.
-5. Save and wait for deployment.
+1. In GitHub, go to **Settings → Pages**.
+2. Under **Build and deployment → Source**, choose **GitHub Actions**.
+3. Push to `main` (or run the workflow manually from the **Actions** tab).
 
 ## Customize
 

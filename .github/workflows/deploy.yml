@@ -1,4 +1,4 @@
-name: Build site data
+name: Build and deploy site
 
 on:
   push:
@@ -12,6 +12,12 @@ on:
 
 permissions:
   contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
 
 jobs:
   build:
@@ -39,3 +45,30 @@ jobs:
             git commit -m "chore(data): refresh repos.json"
             git push
           fi
+
+      - uses: actions/configure-pages@v5
+
+      - name: Assemble site
+        run: |
+          mkdir _site
+          rsync -a \
+            --exclude='.git*' \
+            --exclude='.claude' \
+            --exclude='_site' \
+            --exclude='scripts' \
+            --exclude='README.md' \
+            ./ _site/
+
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
