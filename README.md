@@ -1,80 +1,121 @@
-# FelexHill7.github.io
+# Felex Hill — portfolio
 
-Personal portfolio website built with vanilla HTML, CSS, and JavaScript. Live at **[felexhill7.github.io](https://felexhill7.github.io/)**.
+Personal portfolio where **the page builds itself**. A swarm of cursor "agents" claims each element, draws a design-tool selection box around it, types the text in or drags the box out, then flocks to the next section as you scroll.
 
-## Features
+Built with Next.js (App Router), TypeScript, Tailwind CSS v4 and React Three Fiber. The site keeps itself current: stats come from GitHub and the calendar, and project images are pulled from each repo by a scheduled GitHub Actions job.
 
-- **Featured Projects** — Hand-curated cards for selected repositories with custom write-ups, key bullets, per-repo language bars, and a scrollable visualization gallery.
-- **Notebook Scraping** — For featured repos backed by Jupyter notebooks, the browser fetches the `.ipynb` files directly from `raw.githubusercontent.com`, decodes the base64 cell-output images, and renders them inline. Nothing is downloaded or committed locally.
-- **Dynamic GitHub Repos** — Pulls the rest of the public repositories from the GitHub API and renders them in a responsive grid.
-- **Stats Overview** — Total public repos, languages used, stars, and forks at a glance.
-- **Language Breakdown Chart** — Color-coded bar of languages across all repos plus per-repo breakdowns on each card.
-- **Activity Timeline** — Twelve-month bar chart showing repo pushes per month.
-- **Repo Cards** — Each card surfaces name, description, primary language, stars, forks, size, license, created and updated dates.
-- **Responsive Design** — Three-column grid on desktop collapsing to a single column on mobile.
-- **Smooth Animations** — Subtle fade-in reveal on scroll.
-
-## Tech Stack
-
-- HTML5
-- CSS3 (custom properties, grid, flexbox)
-- Vanilla JavaScript (GitHub REST API)
-- Node.js build step for the data pipeline
-- GitHub Actions for the scheduled rebuild and Pages deploy
-- Google Fonts (Fraunces, Space Grotesk)
-
-## Project Structure
-
-```md
-index.html                       — Page markup and structure
-styles.css                       — All styling: cards, stats bar, charts, gallery
-script.js                        — Renders cards, charts, timeline; fetches notebooks at runtime
-scripts/build-data.js            — CI build step: queries GitHub API, writes data/repos.json
-data/repos.json                  — Generated repo list, language breakdowns, featured sources
-.github/workflows/deploy.yml     — Daily + on-push workflow: builds data, deploys to Pages
-```
-
-## Data Pipeline
-
-The browser does not call the GitHub API directly — the unauthenticated rate limit (60 req/hr) would block visitors quickly. Instead:
-
-1. `.github/workflows/deploy.yml` runs on every push to `main`, once a day on a schedule, and via manual dispatch.
-2. The job executes `scripts/build-data.js` under `GITHUB_TOKEN` (5000 req/hr authenticated quota).
-3. The script writes `data/repos.json` containing slim repo metadata, per-repo language byte counts, image URLs for featured repos, and `.ipynb` URLs for repos whose visuals come from notebooks.
-4. The workflow commits the regenerated `data/repos.json` back to `main` if it changed.
-5. The site files are packaged as a Pages artifact and deployed by `actions/deploy-pages` in the same run.
-
-Featured visuals are referenced by URL only — image bytes never enter this repository.
-
-## Local Preview
-
-`index.html` fetches `data/repos.json`, which browsers refuse to load from `file://`. Run a local server instead:
+## Run locally
 
 ```bash
-npx serve .
-# or
-python -m http.server
+npm install
+npm run dev
 ```
 
-To rebuild `data/repos.json` locally (optional — CI does it on push):
+Open http://localhost:3000. Only one Next.js dev server can run per project. If you see "Another next dev server is already running", stop the PID it prints.
+
+| Script | What it does |
+| --- | --- |
+| `npm run dev` | Start the dev server |
+| `npm run build` / `npm start` | Production build and server |
+| `npm run typecheck` | TypeScript check |
+| `npm run build:media` | Rescan GitHub repos for project images (needs `GITHUB_TOKEN`) |
+| `npm run build:data` | Regenerate `data/repos.json` for the legacy site |
+
+## Edit content
+
+Hand-written copy lives in [`src/data/portfolio.ts`](src/data/portfolio.ts): hero, projects, experience, education, skills, contact, footer and links. Items marked `TODO` are placeholders.
+
+Some values update themselves, so you don't edit them by hand:
+
+| Value | Source | Refreshed |
+| --- | --- | --- |
+| PROJECTS stat | Public, non-fork, non-archived repos on GitHub | Daily, on the server |
+| YEAR stat | Years since `profile.programStart`, rolling over each anniversary | Daily |
+| SINCE stat | Year the GitHub account was created | Daily |
+| "third-year" in copy | Same as YEAR; write `{yearOrdinal}` or `{YearOrdinal}` in any text | Daily |
+| Project images | Found in each project's repo by GitHub Actions | Daily |
+
+The page uses `revalidate = 86400`, so Vercel re-renders it at most once a day. If GitHub can't be reached, the stats fall back to the last snapshot in `data/repos.json`.
+
+## Project images
+
+`scripts/build-project-media.js` scans every public repo and picks up to four images per repo, in this order:
+
+1. Images referenced in the repo's README.
+2. Image files in the repo, ranked by how screenshot-like the path is. Icons, badges, datasets and test fixtures are skipped.
+3. Plots rendered inside Jupyter notebook outputs. These have no URL, so they are decoded and saved to `public/projects/auto/<repo>/`.
+
+Results go to `data/project-media.json`. A project gets the images of the repo in its GitHub link, or of `repo` if you set it. Several images crossfade; a project with none shows a generated mock-up in its accent colour. To pin a specific screenshot, put it in `public/projects/` and set `image: "/projects/<file>.png"` on the project.
+
+**Auto-added projects:** tag any repo with the GitHub topic `portfolio-project` and the next run appends it to the Work section. It uses the repo's description, top languages, topics and homepage, which becomes a Live link. Forks are never auto-added.
+
+## GitHub Actions
+
+`.github/workflows/deploy.yml` runs on every push to `main`, daily at 06:00 UTC, and on manual dispatch. It:
+
+1. Regenerates `data/repos.json` for the legacy site.
+2. Rescans repos for project images and auto projects.
+3. Commits `data/` and `public/projects/auto/` if anything changed. That push triggers a Vercel redeploy of this site.
+4. Publishes the legacy site to GitHub Pages.
+
+## How the build animation works
+
+| Piece | File | Role |
+| --- | --- | --- |
+| Engine | `src/lib/build/engine.ts` | Registry of layers and sections, build queue, Pause / Skip / Replay, elapsed clock |
+| Swarm | `src/lib/build/swarm.ts` | Single-canvas renderer for cursors, selection boxes, dimension tags, guides and edit chips; assigns every agent a job |
+| `<Buildable>` | `src/components/build/Buildable.tsx` | Wraps an element. Kinds: `text` types in, `box` / `image` get dragged out, `chip` gets a click and red edit flash |
+| `<BuildSection>` | `src/components/build/BuildSection.tsx` | Arms a section when it scrolls into view |
+| `<Reveal>` | `src/components/build/Reveal.tsx` | Non-buildable chrome, such as rules and grids, that appears with its section |
+| HUD | `src/components/build/BuildHUD.tsx` | Bottom pill with agent count, layer progress and controls |
+
+Every visible cursor has a job:
+
+- **Builders.** One per element being built, up to 6 at once on desktop and 2 on mobile. Text gets an I-beam on the caret. Boxes get one cursor dragging the corner and one holding the anchor.
+- **Claimers.** Each parks on the corner of an upcoming element and outlines where it will go. The cursor that claims an element is the one that builds it.
+- **Idle agents** leave the viewport toward unbuilt sections.
+
+To add an element to the show:
+
+```tsx
+<Buildable id="unique-id" kind="text" section="about" order={12} as="p" className="...">
+  Text that will be typed in
+</Buildable>
+```
+
+`order` is the build order inside the section, and ids must be unique across the page. The animation always plays, and the HUD's Skip button is the opt-out. To honour `prefers-reduced-motion` instead, see the comment in `detectConfig()` in `engine.ts`.
+
+## Deploy to Vercel
+
+1. Push this repo to GitHub.
+2. In Vercel, choose **Add New → Project** and import the repo. The Next.js preset needs no extra settings.
+3. Optional: add a `GITHUB_TOKEN` environment variable, a fine-grained token with public read-only access. This avoids GitHub's rate limit on Vercel's shared IPs. Without it, stats fall back to the snapshot when the limit is hit.
+4. Deploy. Every push to `main`, including the daily data commits, redeploys.
+
+Or from the CLI:
 
 ```bash
-GITHUB_TOKEN=ghp_yourtoken node scripts/build-data.js
+npx vercel          # first deploy, follow the prompts
+npx vercel --prod   # production
 ```
 
-## Deploy to GitHub Pages
+## Project structure
 
-Deployment runs entirely through GitHub Actions — the same `deploy.yml` workflow that rebuilds the data also publishes the site to `https://felexhill7.github.io/`.
+```text
+src/app/                 layout, page (server: live stats, project merge), global styles
+src/components/build/    animation system: Buildable, BuildSection, Reveal, AgentSwarm, HUD, intro
+src/components/sections/ Hero, Work, Experience, About, Contact, Footer, project frame
+src/components/three/    3D hero object and its WebGL fallback
+src/data/portfolio.ts    all hand-written content
+src/lib/build/           engine and canvas swarm
+src/lib/live.ts          auto-updating stats and copy tokens
+src/lib/media.ts         joins projects with repo images and auto projects
+scripts/                 data builders run by GitHub Actions
+data/                    generated JSON (committed by the workflow)
+public/projects/auto/    notebook plots extracted by the workflow
+legacy/                  previous vanilla HTML/JS site, still published to GitHub Pages
+```
 
-1. In GitHub, go to **Settings → Pages**.
-2. Under **Build and deployment → Source**, choose **GitHub Actions**.
-3. Push to `main` (or run the workflow manually from the **Actions** tab).
+## Legacy site
 
-## Customize
-
-- **Hero, About, Contact** — Edit text directly in `index.html`.
-- **Featured Projects** — Update the `FEATURED_REPOS` array in `script.js` (title, bullets, `maxImages`) and the `FEATURED` list in `scripts/build-data.js` (must match by `name`). Descriptions come from the GitHub repo itself.
-- **Other Repo Descriptions** — Edit the description directly on the GitHub repo (`gh repo edit <repo> --description "..."`). The site picks it up on the next build.
-- **Colors & Layout** — Adjust CSS custom properties at the top of `styles.css`.
-- **GitHub User** — Change the `GITHUB_USER` constant in both `script.js` and `scripts/build-data.js` to point at a different profile.
-- **Language Colors** — Update the `LANG_COLORS` map in `script.js` to tweak the dot/bar colors.
+The previous vanilla HTML/JS site lives in [`legacy/`](legacy/). The workflow still publishes it to GitHub Pages, together with `data/repos.json`. Once the Vercel deployment is live, you can point your domain at it and drop the Pages steps from the workflow.
