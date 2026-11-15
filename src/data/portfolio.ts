@@ -16,7 +16,7 @@ export const profile = {
 
 export const site = {
   name: "Felex Hill",
-  location: "Toronto / Mississauga, Canada",
+  location: "Toronto, Canada",
   url: "https://felexhill.vercel.app",
   description:
     "Felex Hill — {yearOrdinal}-year Computer Science student at York University and AI engineer building ML-powered products.",
@@ -85,15 +85,63 @@ export const projects: Project[] = [
     title: "ClosetAI",
     role: "Data Scientist / Lead Engineer",
     year: "2026",
-    oneLiner: "AI outfit-recommendation app",
+    oneLiner: "AI outfit generation from the clothes you already own",
     description:
-      "An outfit-recommendation app that learns your wardrobe and your taste. I led the engineering and the modelling: garment tagging, an embedding-based recommender, and the mobile-first app that puts it in front of users.",
-    stack: ["Python", "PyTorch", "FastAPI", "React Native", "PostgreSQL"],
+      "An end-to-end app that generates outfits from your existing closet. I built it with Next.js and TypeScript, designed a RAG recommendation pipeline over each user's closet using embeddings and semantic retrieval, and automated clothing tagging with the OpenAI API using structured outputs. The backend is REST APIs in Node.js on PostgreSQL with Clerk auth and cloud storage, deployed on Vercel.",
+    stack: ["TypeScript", "Next.js", "React", "Node.js", "PostgreSQL", "Supabase", "OpenAI API", "Vercel"],
     links: [
-      { label: "GitHub", href: "https://github.com/FelexHill7" }, // TODO: repo link
+      { label: "GitHub", href: "https://github.com/FelexHill7" }, // TODO: repo or live link
     ],
     live: true,
     accent: "#2f6bff",
+  },
+  {
+    slug: "nano-infer",
+    title: "nano-infer",
+    role: "Solo build",
+    year: "2026",
+    oneLiner: "From-scratch LLM inference engine, 1.87× faster decoding",
+    description:
+      "A PyTorch LLM inference engine built from first principles: causal attention with multi-head, grouped-query and multi-query variants in one module, RoPE, RMSNorm + SwiGLU decoder blocks and KV-cached sampling. An append-only KV cache and optimized decoding raised CPU throughput 1.87× (78 → 146 tok/s), with numerical parity against PyTorch's scaled-dot-product attention verified by automated tests.",
+    stack: ["Python", "PyTorch", "Transformers", "RoPE", "KV Cache", "pytest"],
+    links: [{ label: "GitHub", href: "https://github.com/FelexHill7/nano-infer" }],
+    accent: "#a764ff",
+  },
+  {
+    slug: "weather-trend-forecasting",
+    title: "Weather Trend Forecasting",
+    role: "Solo build",
+    year: "2026",
+    oneLiner: "Ensemble forecasting that cut RMSE 47.7%",
+    description:
+      "A time-series forecasting pipeline on 139K rows × 41 features from the Global Weather Repository, with 1–30 day lag and rolling-window features. SARIMA, Prophet and XGBoost are ensembled by inverse-RMSE weighting, reducing forecast RMSE 47.7% over the baseline. Multivariate anomalies are detected with Isolation Forest and LOF and explored through PCA and an interactive Folium map.",
+    stack: ["Python", "Pandas", "scikit-learn", "XGBoost", "statsmodels", "Prophet", "Folium"],
+    links: [{ label: "GitHub", href: "https://github.com/FelexHill7/weatherTrendForecasting" }],
+    accent: "#3ad7ff",
+  },
+  {
+    slug: "cartpole-rl",
+    title: "Reinforcement Learning on CartPole",
+    role: "Solo build",
+    year: "2026",
+    oneLiner: "REINFORCE, DQN and Actor-Critic, compared head to head",
+    description:
+      "REINFORCE, DQN and Actor-Critic implemented from scratch on a shared trainer, so the comparison is controlled. DQN uses a replay buffer and target network, and REINFORCE is stabilized with return normalization and gradient clipping. A CLI runs multi-seed, 500+ episode experiments and generates learning curves and rollout visualizations automatically.",
+    stack: ["Python", "PyTorch", "Gymnasium", "Matplotlib"],
+    links: [{ label: "GitHub", href: "https://github.com/FelexHill7/cartpole-rl-comparison" }],
+    accent: "#ffd23f",
+  },
+  {
+    slug: "vision-transformer",
+    title: "Vision Transformer (ViT)",
+    role: "Solo build",
+    year: "2026",
+    oneLiner: "63.99% on CIFAR-100 with 20× fewer parameters than ViT-Base",
+    description:
+      "A Vision Transformer built from scratch with patch embeddings and multi-head self-attention, trained with AdamW, a cosine learning-rate schedule, Mixup and mixed precision. It reaches 63.99% top-1 accuracy on CIFAR-100, beating the original ViT-Base (~55%) with 20× fewer parameters.",
+    stack: ["Python", "PyTorch", "CIFAR-100", "AMP"],
+    links: [{ label: "GitHub", href: "https://github.com/FelexHill7/visionTransformer" }],
+    accent: "#ff3b3b",
   },
   {
     slug: "rxread",
@@ -106,18 +154,6 @@ export const projects: Project[] = [
     stack: ["PyTorch", "Transformers", "Flask", "Google GenAI"],
     links: [{ label: "GitHub", href: "https://github.com/FelexHill7/RxRead" }],
     accent: "#ff7a1a",
-  },
-  {
-    slug: "nano-infer",
-    title: "nano-infer",
-    role: "Solo build",
-    year: "2026",
-    oneLiner: "From-scratch LLM inference engine",
-    description:
-      "A PyTorch inference engine written from first principles: MHA/GQA/MQA in one attention module, RoPE, an append-only KV cache with numerical parity against scaled_dot_product_attention, RMSNorm + SwiGLU decoder blocks, and KV-cached greedy/top-k sampling. Trains a 1M-parameter GQA transformer end to end.",
-    stack: ["Python", "PyTorch", "CUDA"],
-    links: [{ label: "GitHub", href: "https://github.com/FelexHill7/nano-infer" }],
-    accent: "#a764ff",
   },
   {
     slug: "citation-knowledge-agent",
@@ -178,25 +214,45 @@ export const experienceSection = {
   headline: ["Where I've", "worked."],
 };
 
-export const experience = [
+export const experience: {
+  company: string;
+  role: string;
+  period: string;
+  location?: string;
+  stack?: string[];
+  bullets: string[];
+}[] = [
   {
     company: "Product Management Accelerator (PMA)",
     role: "AI Engineer Intern",
     period: "Aug – Nov 2026",
-    location: "Remote",
     bullets: [
-      "Built and evaluated LLM-powered features end to end, from prompt and retrieval design to shipped product surfaces.", // TODO: refine
+      "Built and evaluated LLM-powered features end to end, from prompt and retrieval design to shipped product surfaces.", // TODO: replace with your real PMA work (not on your resume yet)
       "Owned data pipelines and evaluation harnesses so model changes could be measured before release.",
     ],
   },
   {
-    company: "Vybe",
-    role: "Software Development Intern",
-    period: "Feb – Apr 2026",
-    location: "Toronto, ON",
+    company: "ClosetAI",
+    role: "Data Scientist / Lead Engineer",
+    period: "Mar – Dec 2026",
+    stack: ["TypeScript", "SQL", "React", "Next.js", "Node.js", "PostgreSQL", "Supabase", "Clerk", "AWS S3", "Cloudflare R2", "Vercel"],
     bullets: [
-      "Shipped full-stack features across a TypeScript codebase with a focus on performance and reliability.", // TODO: refine
-      "Worked in a small team with code review, CI and weekly releases.",
+      "Built and deployed an end-to-end AI outfit generation app with React, Next.js and TypeScript, working from users' existing closets.",
+      "Designed a RAG recommendation pipeline using embeddings, semantic retrieval and vector databases over user closet data.",
+      "Integrated the OpenAI API to automate clothing tagging, using structured outputs and typed error handling for reliability.",
+      "Built REST APIs in Node.js with PostgreSQL, Clerk auth and cloud storage on AWS S3 / Cloudflare R2, deployed on Vercel.",
+    ],
+  },
+  {
+    company: "Vybe",
+    role: "Software Developer Intern",
+    period: "Feb – Apr 2026",
+    stack: ["Java", "Spring Boot", "Hibernate", "JUnit", "React", "TypeScript", "MySQL", "Docker", "Gemini API", "Google Cloud"],
+    bullets: [
+      "Built a scalable AI-powered food-delivery platform with personalized recommendations and real-time, location-based offers.",
+      "Integrated the Google Gemini API for LLM-powered features, prompt engineering and API-based inference.",
+      "Developed Spring Boot RESTful microservices and API gateways with OAuth2/JWT for secure inter-service communication.",
+      "Collaborated with a cross-functional team in Agile sprints, iterating on features based on code reviews and feedback.",
     ],
   },
 ];
@@ -206,19 +262,37 @@ export const education = [
     school: "York University",
     /** Logo tile in /public/logos. `logoFill` makes the logo fill the tile edge to edge. */
     logo: "/logos/york-university.png",
-    logoFill: true,
-    degree: "B.Sc. Computer Science — Software Development specialization",
-    period: "2024 – present", // TODO: confirm start year
-    detail: "{YearOrdinal} year. Toronto, ON.",
+    logoFill: false,
+    degree: "Hons. B.A.Sc., Computer Science for Software Development",
+    period: "2024 – 2028",
+    detail: "Lassonde School of Engineering · {YearOrdinal} year · GPA 3.8/4.0 · Toronto, ON",
+    coursework: [
+      "Machine Learning",
+      "Data Science and Application",
+      "Design and Analysis of Algorithms",
+      "Data Structures & Algorithms",
+      "Object-Oriented Programming",
+      "Software Design",
+      "Cloud Computing",
+    ],
   },
   {
-    school: "Tsinghua University International Summer School",
+    school: "Tsinghua University",
     logo: "/logos/tsinghua-university.png",
     logoFill: false,
-    degree: "Generative AI",
+    degree: "International Summer School, Generative AI",
     period: "July 2026",
-    detail:
-      "Deep learning, generative AI, large language models, reinforcement learning, training and inference.",
+    detail: "GPA 4.0/4.0 · Beijing, China",
+    coursework: [
+      "Deep Reinforcement Learning",
+      "Transformer-based NLP",
+      "Diffusion Models",
+      "Training & Inference",
+      "Data Science for LLMs",
+      "RAG Systems",
+      "LLMs for Legal Intelligence",
+      "Generative AI for Medicine",
+    ],
   },
 ];
 
@@ -228,13 +302,17 @@ export const about = {
   skillsEyebrow: "STACK",
   headline: ["Applied AI,", "built properly."],
   body: [
-    "I'm a {yearOrdinal}-year Computer Science student at York University (Software Development specialization), based in Toronto and Mississauga.",
+    "I'm a {yearOrdinal}-year Computer Science student at York University (Software Development specialization), based in Toronto.",
     "I care most about applied AI and medtech: taking a model from a notebook to something a person can actually use, and making it reliable along the way.",
   ],
   skills: [
-    { group: "ML / AI", items: ["PyTorch", "TensorFlow", "scikit-learn", "Transformers", "LLMs & RAG", "RL"] },
-    { group: "Software", items: ["TypeScript", "Python", "Java", "Next.js", "React", "Node.js"] },
-    { group: "Infra & data", items: ["PostgreSQL", "Docker", "GitHub Actions", "FastAPI", "Flask"] },
+    { group: "Languages", items: ["Python", "SQL", "C++", "Java", "TypeScript", "JavaScript", "Bash"] },
+    { group: "ML / AI", items: ["PyTorch", "scikit-learn", "TensorFlow", "XGBoost", "statsmodels", "Prophet", "Gymnasium", "Reinforcement Learning", "LLMs", "RAG"] },
+    { group: "LLM tools", items: ["OpenAI API", "Google Gemini API", "MCP", "Elasticsearch"] },
+    { group: "Data", items: ["NumPy", "Pandas", "Matplotlib", "Folium", "Feature Engineering", "Time-Series Analysis", "Anomaly Detection"] },
+    { group: "Frameworks", items: ["Flask", "FastAPI", "React", "Next.js", "Node.js", "Spring Boot", "JUnit", "REST APIs"] },
+    { group: "Cloud / DevOps", items: ["Docker", "Kubernetes", "Git", "AWS (S3)", "Google Cloud", "Vercel", "Prometheus", "Grafana"] },
+    { group: "Databases", items: ["PostgreSQL", "MySQL", "MongoDB", "SQLite", "Supabase"] },
   ],
 };
 

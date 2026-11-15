@@ -108,18 +108,28 @@ export class BuildEngine {
     this.emitGlobal(true);
   }
 
+  /**
+   * Build state of layers that unmounted, keyed by id. A layer that re-registers
+   * (its text changed, hot reload, a remount) keeps its state instead of going
+   * back to "pending", which would hide it for good once the page is done.
+   */
+  private remembered = new Map<string, Pick<Layer, "status" | "progress" | "startedAt">>();
+
   register(input: LayerInput): Layer {
-    const instant = this.config.instant;
+    const prev = this.remembered.get(input.id);
+    this.remembered.delete(input.id);
+    // nothing builds after the page is done, so late arrivals appear already built
+    const instant = this.config.instant || this.phase === "done";
     const layer: Layer = {
       id: input.id,
       kind: input.kind,
       section: input.section,
       order: input.order,
       el: input.el,
-      status: instant ? "built" : "pending",
-      progress: instant ? 1 : 0,
+      status: prev?.status ?? (instant ? "built" : "pending"),
+      progress: prev?.progress ?? (instant ? 1 : 0),
       duration: baseDuration(input) * this.config.speed,
-      startedAt: 0,
+      startedAt: prev?.startedAt ?? 0,
     };
     this.layers.set(layer.id, layer);
     this.queue = null;
@@ -129,6 +139,8 @@ export class BuildEngine {
   }
 
   unregister(id: string) {
+    const l = this.layers.get(id);
+    if (l) this.remembered.set(id, { status: l.status, progress: l.progress, startedAt: l.startedAt });
     this.layers.delete(id);
     this.queue = null;
     this.emitGlobal(true);
@@ -268,6 +280,7 @@ export class BuildEngine {
 
   replay() {
     this.queue = null;
+    this.remembered.clear();
     const now = performance.now();
     this.armed.clear();
     this.sectionIndex.forEach((idx, id) => idx === 0 && this.armed.add(id));

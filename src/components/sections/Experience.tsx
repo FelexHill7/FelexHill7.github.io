@@ -24,7 +24,7 @@ export function Experience() {
           <Reveal section={S} className="absolute bottom-6 left-[7px] top-6 w-px bg-white/[0.08]" />
           <ol className="flex flex-col gap-6">
             {experience.map((job, i) => {
-              const base = 10 + i * 10;
+              const base = 10 + i * 20;
               const id = `${S}-${i}`;
               return (
                 <li key={job.company} className="relative pl-10">
@@ -64,7 +64,7 @@ export function Experience() {
                         as="span"
                         className="block font-mono text-[11px] uppercase tracking-[0.18em] text-white/45"
                       >
-                        {`${job.period} · ${job.location}`}
+                        {job.location ? `${job.period} · ${job.location}` : job.period}
                       </Buildable>
                     </div>
                     <Buildable
@@ -77,6 +77,23 @@ export function Experience() {
                     >
                       {job.company}
                     </Buildable>
+                    {job.stack && (
+                      <div className="mt-4 flex flex-wrap gap-1.5">
+                        {job.stack.map((tech, k) => (
+                          <Buildable
+                            key={tech}
+                            id={`${id}-s${k}`}
+                            kind="chip"
+                            section={S}
+                            order={base + 10 + k * 0.1}
+                            as="span"
+                            className="inline-flex h-6 items-center rounded border border-white/10 px-2 font-mono text-[10.5px] text-white/55"
+                          >
+                            {tech}
+                          </Buildable>
+                        ))}
+                      </div>
+                    )}
                     <ul className="mt-5 flex flex-col gap-2.5">
                       {job.bullets.map((b, k) => (
                         <li key={k} className="flex gap-3 text-[15px] leading-[1.6] text-white/60">

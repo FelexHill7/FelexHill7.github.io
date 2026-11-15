@@ -2,21 +2,48 @@
 
 import { Component, type ReactNode } from "react";
 
-/** Static stand-in for the 3D object when WebGL is unavailable or fails. */
+/** Same layer sizes as the 3D network in HeroObject. */
+const LAYERS = [4, 7, 7, 5, 2];
+/** Nodes drawn lit, as if a signal is passing through. */
+const LIT = new Set(["1-2", "2-4", "3-1", "4-0"]);
+
+/** Static, flat drawing of the hero network for when WebGL is unavailable or fails. */
 function ObjectFallback() {
+  const pts = LAYERS.map((n, l) =>
+    Array.from({ length: n }, (_, i) => ({ x: 40 + l * 80, y: 200 + (i - (n - 1) / 2) * 44, id: `${l}-${i}` })),
+  );
   return (
     <div aria-hidden className="absolute inset-0 flex items-center justify-center">
-      <div className="relative h-[62%] w-[62%]">
-        <div className="absolute inset-0 rounded-full bg-[radial-gradient(circle_at_35%_30%,#5b8bff_0%,#1b56ff_35%,rgba(27,86,255,0.15)_70%,transparent_72%)] blur-[1px]" />
-        <div className="absolute inset-[14%] rounded-full border-[14px] border-[#1b56ff]/80 shadow-[inset_0_0_40px_rgba(0,0,0,0.6)]" />
-        {[0, 72, 144, 216, 288].map((deg) => (
-          <span
-            key={deg}
-            className="absolute left-1/2 top-1/2 h-5 w-5 rounded-full bg-[#ffb21c] shadow-[0_0_24px_6px_rgba(255,178,28,0.55)]"
-            style={{ transform: `rotate(${deg}deg) translate(0, -43%) translate(-50%, -50%)` }}
-          />
-        ))}
-      </div>
+      <svg viewBox="0 0 400 400" className="h-[78%] w-[78%]">
+        <defs>
+          <radialGradient id="fb-node" cx="35%" cy="30%">
+            <stop offset="0%" stopColor="#7d9dff" />
+            <stop offset="60%" stopColor="#1b56ff" />
+            <stop offset="100%" stopColor="#0f2f99" />
+          </radialGradient>
+          <radialGradient id="fb-glow">
+            <stop offset="0%" stopColor="#ffb21c" stopOpacity="0.6" />
+            <stop offset="100%" stopColor="#ffb21c" stopOpacity="0" />
+          </radialGradient>
+        </defs>
+        {pts.slice(0, -1).map((layer, l) =>
+          layer.flatMap((a) =>
+            pts[l + 1].map((b) => (
+              <line key={`${a.id}>${b.id}`} x1={a.x} y1={a.y} x2={b.x} y2={b.y} stroke="#5b7dff" strokeOpacity="0.18" strokeWidth="1" />
+            )),
+          ),
+        )}
+        {pts.flat().map((p) =>
+          LIT.has(p.id) ? (
+            <g key={p.id}>
+              <circle cx={p.x} cy={p.y} r="22" fill="url(#fb-glow)" />
+              <circle cx={p.x} cy={p.y} r="9" fill="#ffb21c" />
+            </g>
+          ) : (
+            <circle key={p.id} cx={p.x} cy={p.y} r="9" fill="url(#fb-node)" />
+          ),
+        )}
+      </svg>
     </div>
   );
 }

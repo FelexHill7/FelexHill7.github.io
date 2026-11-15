@@ -62,7 +62,7 @@ export function About({ body, education }: AboutProps) {
         </div>
         <ol className="flex flex-col lg:col-span-7">
           {education.map((e, i) => {
-            const base = 11 + i * 5;
+            const base = 11 + i * 6;
             return (
               <li key={e.school} className="flex gap-5 border-t border-white/[0.08] py-7">
                 <Buildable
@@ -87,6 +87,23 @@ export function About({ body, education }: AboutProps) {
                   <Buildable id={`${S}-edu-${i}-detail`} kind="text" section={S} order={base + 4} as="p" className="mt-2 block text-[14px] leading-[1.6] text-white/50">
                     {e.detail}
                   </Buildable>
+                  {e.coursework.length > 0 && (
+                    <div className="mt-4 flex flex-wrap gap-1.5">
+                      {e.coursework.map((course, k) => (
+                        <Buildable
+                          key={course}
+                          id={`${S}-edu-${i}-c${k}`}
+                          kind="chip"
+                          section={S}
+                          order={base + 5 + k * 0.1}
+                          as="span"
+                          className="inline-flex h-6 items-center rounded border border-white/10 px-2 font-mono text-[10.5px] text-white/55"
+                        >
+                          {course}
+                        </Buildable>
+                      ))}
+                    </div>
+                  )}
                 </div>
                 <Buildable
                   id={`${S}-edu-${i}-period`}
@@ -122,7 +139,7 @@ export function About({ body, education }: AboutProps) {
         </div>
         <div className="flex flex-col gap-7 lg:col-span-7">
           {about.skills.map((group, g) => {
-            const base = 31 + g * 10;
+            const base = 31 + g * 12;
             return (
               <div key={group.group} className="grid grid-cols-1 gap-3 md:grid-cols-[140px_1fr] md:gap-8">
                 <Buildable
