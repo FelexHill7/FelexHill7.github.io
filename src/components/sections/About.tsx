@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { Buildable } from "@/components/build/Buildable";
 import { BuildSection } from "@/components/build/BuildSection";
 import { Reveal } from "@/components/build/Reveal";
@@ -61,17 +62,29 @@ export function About({ body, education }: AboutProps) {
         </div>
         <ol className="flex flex-col lg:col-span-7">
           {education.map((e, i) => {
-            const base = 11 + i * 4;
+            const base = 11 + i * 5;
             return (
-              <li key={e.school} className="grid grid-cols-1 gap-3 border-t border-white/[0.08] py-7 md:grid-cols-[1fr_auto] md:gap-10">
+              <li key={e.school} className="flex gap-5 border-t border-white/[0.08] py-7">
+                <Buildable
+                  id={`${S}-edu-${i}-logo`}
+                  kind="box"
+                  section={S}
+                  order={base}
+                  duration={600}
+                  as="span"
+                  className={`relative block h-12 w-12 shrink-0 overflow-hidden rounded-xl bg-white ring-1 ring-white/10 ${e.logoFill ? "" : "p-1"}`}
+                >
+                  <Image src={e.logo} alt={`${e.school} logo`} width={48} height={48} className="h-full w-full object-contain" />
+                </Buildable>
+                <div className="grid flex-1 grid-cols-1 gap-3 md:grid-cols-[1fr_auto] md:gap-10">
                 <div>
-                  <Buildable id={`${S}-edu-${i}-school`} kind="text" section={S} order={base} as="h3" className="block text-[20px] font-semibold tracking-tight">
+                  <Buildable id={`${S}-edu-${i}-school`} kind="text" section={S} order={base + 1} as="h3" className="block text-[20px] font-semibold tracking-tight">
                     {e.school}
                   </Buildable>
-                  <Buildable id={`${S}-edu-${i}-degree`} kind="text" section={S} order={base + 1} as="p" className="mt-1 block text-[15px] text-white/75">
+                  <Buildable id={`${S}-edu-${i}-degree`} kind="text" section={S} order={base + 2} as="p" className="mt-1 block text-[15px] text-white/75">
                     {e.degree}
                   </Buildable>
-                  <Buildable id={`${S}-edu-${i}-detail`} kind="text" section={S} order={base + 3} as="p" className="mt-2 block text-[14px] leading-[1.6] text-white/50">
+                  <Buildable id={`${S}-edu-${i}-detail`} kind="text" section={S} order={base + 4} as="p" className="mt-2 block text-[14px] leading-[1.6] text-white/50">
                     {e.detail}
                   </Buildable>
                 </div>
@@ -79,12 +92,13 @@ export function About({ body, education }: AboutProps) {
                   id={`${S}-edu-${i}-period`}
                   kind="text"
                   section={S}
-                  order={base + 2}
+                  order={base + 3}
                   as="span"
                   className="block font-mono text-[11px] uppercase tracking-[0.18em] text-white/45 md:pt-1.5"
                 >
                   {e.period}
                 </Buildable>
+                </div>
               </li>
             );
           })}

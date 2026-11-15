@@ -204,12 +204,17 @@ export const experience = [
 export const education = [
   {
     school: "York University",
+    /** Logo tile in /public/logos. `logoFill` makes the logo fill the tile edge to edge. */
+    logo: "/logos/york-university.png",
+    logoFill: true,
     degree: "B.Sc. Computer Science — Software Development specialization",
     period: "2024 – present", // TODO: confirm start year
     detail: "{YearOrdinal} year. Toronto, ON.",
   },
   {
     school: "Tsinghua University International Summer School",
+    logo: "/logos/tsinghua-university.png",
+    logoFill: false,
     degree: "Generative AI",
     period: "July 2026",
     detail:
