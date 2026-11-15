@@ -11,7 +11,7 @@ export function Contact() {
   return (
     <BuildSection
       id={S}
-      index={4}
+      index={5}
       className="mx-auto max-w-[1400px] scroll-mt-20 px-6 py-28 lg:px-10 lg:py-44"
     >
       <Reveal section={S} className="mb-20 h-px w-full bg-white/[0.08] lg:mb-28" />

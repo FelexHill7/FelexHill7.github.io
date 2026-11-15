@@ -25,6 +25,8 @@ Open http://localhost:3000. Only one Next.js dev server can run per project. If 
 
 Hand-written copy lives in [`src/data/portfolio.ts`](src/data/portfolio.ts): hero, projects, experience, education, skills, contact, footer and links. Items marked `TODO` are placeholders.
 
+The **More work** section, after Work, links your resume and GitHub. It also lists your most recently updated repos that aren't already featured, taken from the daily `data/repos.json` snapshot. Its copy and the number of repos shown are under `more` in the same file.
+
 Some values update themselves, so you don't edit them by hand:
 
 | Value | Source | Refreshed |
@@ -45,7 +47,7 @@ The page uses `revalidate = 86400`, so Vercel re-renders it at most once a day. 
 2. Image files in the repo, ranked by how screenshot-like the path is. Icons, badges, datasets and test fixtures are skipped.
 3. Plots rendered inside Jupyter notebook outputs. These have no URL, so they are decoded and saved to `public/projects/auto/<repo>/`.
 
-Results go to `data/project-media.json`. A project gets the images of the repo in its GitHub link, or of `repo` if you set it. Several images crossfade; a project with none shows a generated mock-up in its accent colour. To pin a specific screenshot, put it in `public/projects/` and set `image: "/projects/<file>.png"` on the project.
+Results go to `data/project-media.json`. A project gets the images of the repo in its GitHub link, or of `repo` if you set it. Several images appear in a slider that auto-advances while on screen and has previous/next arrows, dots and swipe. A project with none shows a generated mock-up in its accent colour. Images are served through Next.js image optimization, which resizes them and converts them to WebP. To pin a specific screenshot, put it in `public/projects/` and set `image: "/projects/<file>.png"` on the project.
 
 **Auto-added projects:** tag any repo with the GitHub topic `portfolio-project` and the next run appends it to the Work section. It uses the repo's description, top languages, topics and homepage, which becomes a Live link. Forks are never auto-added.
 

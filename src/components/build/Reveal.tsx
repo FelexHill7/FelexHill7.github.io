@@ -1,18 +1,24 @@
 "use client";
 
-import { createElement, type ElementType, type ReactNode } from "react";
-import { useEngine, useEngineVersion, useMounted } from "@/lib/build/BuildProvider";
+import { createElement, useCallback, useSyncExternalStore, type ElementType, type ReactNode } from "react";
+import { useEngine, useMounted } from "@/lib/build/BuildProvider";
 
-/** True once any layer in `section` has started building (or always, in instant mode). */
+/**
+ * True once any layer in `section` has started building (or always, in instant mode).
+ * Subscribes with a boolean snapshot, so it re-renders only when that flips.
+ */
 function useSectionStarted(section: string): boolean {
   const engine = useEngine();
-  useEngineVersion();
   const mounted = useMounted();
-  if (!mounted || engine.config.instant) return true;
-  for (const layer of engine.layers.values()) {
-    if (layer.section === section && layer.status !== "pending") return true;
-  }
-  return false;
+  const started = useCallback(() => {
+    if (engine.config.instant) return true;
+    for (const layer of engine.layers.values()) {
+      if (layer.section === section && layer.status !== "pending") return true;
+    }
+    return false;
+  }, [engine, section]);
+  const value = useSyncExternalStore(engine.subscribe, started, () => true);
+  return !mounted || value;
 }
 
 type Props = {

@@ -2,6 +2,7 @@
 
 import {
   createElement,
+  useCallback,
   useLayoutEffect,
   useRef,
   useSyncExternalStore,
@@ -86,14 +87,27 @@ export function Buildable({
     return () => engine.unregister(id);
   }, [engine, id, kind, section, order, text.length, duration]);
 
-  const snapshot = useSyncExternalStore(
-    (cb) => engine.subscribeLayer(id, cb),
-    () => engine.getLayerSnapshot(id),
-    () => "built:1",
-  );
+  // The engine notifies every frame while building; the snapshot only changes when
+  // something visible does (a character typed, a fade step, a colour flip), so
+  // React re-renders far less often.
+  const subscribe = useCallback((cb: () => void) => engine.subscribeLayer(id, cb), [engine, id]);
+  const getSnapshot = useCallback((): string => {
+    const l = engine.layers.get(id);
+    if (!l) return engine.config.instant ? "built:0" : "pending:0";
+    if (l.status !== "building") return `${l.status}:0`;
+    const p = l.progress;
+    if (kind === "text") {
+      const typeProgress = Math.max(0, (p - TYPE_START) / (1 - TYPE_START));
+      return `building:${Math.floor(typeProgress * text.length)}`;
+    }
+    if (kind === "chip") return `building:${p < 0.75 ? 0 : 1}`;
+    return `building:${p < 0.55 ? 0 : Math.round(Math.min(1, (p - 0.55) / 0.35) * 40) / 40}`;
+  }, [engine, id, kind, text.length]);
+  const snapshot = useSyncExternalStore(subscribe, getSnapshot, () => "built:0");
   const sep = snapshot.indexOf(":");
   const status = snapshot.slice(0, sep);
-  const progress = parseFloat(snapshot.slice(sep + 1));
+  /** typed characters (text), edit-done flag (chip) or content opacity (box / image) */
+  const step = parseFloat(snapshot.slice(sep + 1));
 
   const base = {
     ref,
@@ -118,9 +132,7 @@ export function Buildable({
 
   /* ---------- building ---------- */
   if (kind === "text") {
-    // typing starts once the lead cursor has reached the caret
-    const typeProgress = Math.max(0, (progress - TYPE_START) / (1 - TYPE_START));
-    const n = Math.floor(typeProgress * text.length);
+    const n = step;
     const typed = text.slice(0, n);
     let scramble = "";
     const end = Math.min(text.length, n + 2);
@@ -128,7 +140,7 @@ export function Buildable({
       scramble +=
         text[i] === " " ? " " : TYPE_SCRAMBLE[(Math.random() * TYPE_SCRAMBLE.length) | 0];
     }
-    const seed = Math.floor(progress * 40);
+    const seed = n;
     return createElement(
       as,
       { ...base, className: cx(className, "relative"), style },
@@ -170,17 +182,16 @@ export function Buildable({
       {
         ...base,
         className,
-        style: { ...style, color: progress < 0.75 ? "#ff6b6b" : undefined },
+        style: { ...style, color: step === 0 ? "#ff6b6b" : undefined },
       },
       children,
     );
   }
 
   // box / image: content fades in behind the canvas placeholder once it is dragged out
-  const contentOpacity = progress < 0.55 ? 0 : Math.min(1, (progress - 0.55) / 0.35);
   return createElement(
     as,
-    { ...base, className, style: { ...style, opacity: contentOpacity } },
+    { ...base, className, style: { ...style, opacity: step } },
     children,
   );
 }
