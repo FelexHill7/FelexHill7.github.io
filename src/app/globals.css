@@ -1,0 +1,70 @@
+@import "tailwindcss";
+
+@theme inline {
+  --color-bg: #0b0b0c;
+  --color-fg: #ffffff;
+  --color-accent: #2f6bff;
+  --color-orange: #ff7a1a;
+  --color-green: #22d37f;
+  --color-danger: #ff3b3b;
+
+  --font-sans: var(--font-inter-tight), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains), ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+html {
+  background: #0b0b0c;
+  color: #fff;
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  font-feature-settings: "ss01", "cv11";
+  overflow-x: hidden;
+}
+
+::selection {
+  background: #2f6bff;
+  color: #fff;
+}
+
+/* Set before paint by the inline script in layout.tsx; removed once the build engine mounts. */
+.build-pending [data-buildable] {
+  visibility: hidden !important;
+}
+.build-pending [data-reveal] {
+  opacity: 0 !important;
+}
+
+@keyframes ellipsis {
+  0% {
+    content: "";
+  }
+  33% {
+    content: ".";
+  }
+  66% {
+    content: "..";
+  }
+  100% {
+    content: "...";
+  }
+}
+
+.intro-ellipsis::after {
+  content: "...";
+  display: inline-block;
+  width: 1.6em;
+  text-align: left;
+  animation: ellipsis 1.2s steps(1) infinite;
+}
+
+/* Subtle spec-sheet grid behind the hero */
+.spec-grid {
+  background-image:
+    linear-gradient(to right, rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+  background-size: 96px 96px;
+  mask-image: radial-gradient(ellipse 70% 60% at 50% 40%, #000 30%, transparent 100%);
+}

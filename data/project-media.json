@@ -1,0 +1,220 @@
+{
+  "generatedAt": "2026-11-15T10:27:45.938Z",
+  "user": "FelexHill7",
+  "autoTopic": "portfolio-project",
+  "media": {
+    "ssbu-recomp": {
+      "images": [
+        {
+          "src": "https://raw.githubusercontent.com/FelexHill7/ssbu-recomp/main/media/settings.png",
+          "alt": "The settings menu",
+          "source": "readme"
+        },
+        {
+          "src": "https://raw.githubusercontent.com/FelexHill7/ssbu-recomp/main/media/menus.webp",
+          "alt": "The menus running natively",
+          "source": "readme"
+        },
+        {
+          "src": "https://raw.githubusercontent.com/FelexHill7/ssbu-recomp/main/media/og-image.png",
+          "alt": "OpenSmash-Ultimate",
+          "source": "readme"
+        }
+      ]
+    },
+    "rea": {
+      "images": [
+        {
+          "src": "https://raw.githubusercontent.com/FelexHill7/rea/main/docs/assets/rea-showcases.png",
+          "alt": "Illustrations of the DX-Ball sound-pan, Notion clipboard-bridge, and TH04 bullet-ring showcases",
+          "source": "readme"
+        },
+        {
+          "src": "https://raw.githubusercontent.com/FelexHill7/rea/main/docs/assets/rea-hopper-analysis.png",
+          "alt": "REA launching its analysis bridge inside Hopper while inspecting a native binary",
+          "source": "readme"
+        }
+      ]
+    },
+    "eclass-digest": {
+      "images": [
+        {
+          "src": "https://raw.githubusercontent.com/FelexHill7/eclass-digest/main/docs/sample-digest.png",
+          "alt": "Example digest email",
+          "source": "readme"
+        },
+        {
+          "src": "https://raw.githubusercontent.com/FelexHill7/eclass-digest/main/docs/sample-calendar-email.png",
+          "alt": "Example calendar update email",
+          "source": "readme"
+        }
+      ]
+    },
+    "diffusion-model-exploration": {
+      "images": [
+        {
+          "src": "https://raw.githubusercontent.com/FelexHill7/diffusion-model-exploration/master/outputs/Terminal.png",
+          "alt": "diffusion-model-exploration — Terminal",
+          "source": "file"
+        },
+        {
+          "src": "https://raw.githubusercontent.com/FelexHill7/diffusion-model-exploration/master/outputs/forward_process.png",
+          "alt": "diffusion-model-exploration — forward process",
+          "source": "file"
+        },
+        {
+          "src": "https://raw.githubusercontent.com/FelexHill7/diffusion-model-exploration/master/outputs/generated_samples.png",
+          "alt": "diffusion-model-exploration — generated samples",
+          "source": "file"
+        },
+        {
+          "src": "https://raw.githubusercontent.com/FelexHill7/diffusion-model-exploration/master/outputs/original_data.png",
+          "alt": "diffusion-model-exploration — original data",
+          "source": "file"
+        }
+      ]
+    },
+    "cluely-clone": {
+      "images": [
+        {
+          "src": "https://raw.githubusercontent.com/FelexHill7/cluely-clone/main/public/images/chat-demo.png",
+          "alt": "cluely-clone — chat demo",
+          "source": "file"
+        },
+        {
+          "src": "https://raw.githubusercontent.com/FelexHill7/cluely-clone/main/public/images/hero-ai.png",
+          "alt": "cluely-clone — hero ai",
+          "source": "file"
+        }
+      ]
+    },
+    "cartpole-rl-comparison": {
+      "images": [
+        {
+          "src": "/projects/auto/cartpole-rl-comparison/notebook-0.png",
+          "alt": "cartpole-rl-comparison — notebook",
+          "source": "notebook"
+        },
+        {
+          "src": "/projects/auto/cartpole-rl-comparison/notebook-1.png",
+          "alt": "cartpole-rl-comparison — notebook",
+          "source": "notebook"
+        },
+        {
+          "src": "/projects/auto/cartpole-rl-comparison/notebook-2.png",
+          "alt": "cartpole-rl-comparison — notebook",
+          "source": "notebook"
+        }
+      ]
+    },
+    "Basics-of-Deeplearning-Assignment": {
+      "images": [
+        {
+          "src": "https://raw.githubusercontent.com/FelexHill7/Basics-of-Deeplearning-Assignment/main/training_curves.png",
+          "alt": "Basics-of-Deeplearning-Assignment — training curves",
+          "source": "file"
+        }
+      ]
+    },
+    "visionTransformer": {
+      "images": [
+        {
+          "src": "https://raw.githubusercontent.com/FelexHill7/visionTransformer/main/training_curves.png",
+          "alt": "Training curves",
+          "source": "readme"
+        },
+        {
+          "src": "https://raw.githubusercontent.com/FelexHill7/visionTransformer/main/attention.png",
+          "alt": "Attention rollout",
+          "source": "readme"
+        }
+      ]
+    },
+    "RxRead": {
+      "images": [
+        {
+          "src": "https://raw.githubusercontent.com/FelexHill7/RxRead/master/outputs/training_curves.png",
+          "alt": "RxRead — training curves",
+          "source": "file"
+        },
+        {
+          "src": "https://raw.githubusercontent.com/FelexHill7/RxRead/master/outputs/confusion_matrix.png",
+          "alt": "RxRead — confusion matrix",
+          "source": "file"
+        }
+      ]
+    },
+    "weatherTrendForecasting": {
+      "images": [
+        {
+          "src": "https://raw.githubusercontent.com/FelexHill7/weatherTrendForecasting/main/plots/model_comparison.png",
+          "alt": "weatherTrendForecasting — model comparison",
+          "source": "file"
+        },
+        {
+          "src": "https://raw.githubusercontent.com/FelexHill7/weatherTrendForecasting/main/plots/model_rmse_comparison.png",
+          "alt": "weatherTrendForecasting — model rmse comparison",
+          "source": "file"
+        },
+        {
+          "src": "https://raw.githubusercontent.com/FelexHill7/weatherTrendForecasting/main/plots/air_quality_distributions.png",
+          "alt": "weatherTrendForecasting — air quality distributions",
+          "source": "file"
+        },
+        {
+          "src": "https://raw.githubusercontent.com/FelexHill7/weatherTrendForecasting/main/plots/aq_scatter.png",
+          "alt": "weatherTrendForecasting — aq scatter",
+          "source": "file"
+        }
+      ]
+    },
+    "cancerdetection": {
+      "images": [
+        {
+          "src": "/projects/auto/cancerdetection/model_comparison-0.png",
+          "alt": "cancerdetection — model comparison",
+          "source": "notebook"
+        },
+        {
+          "src": "/projects/auto/cancerdetection/logistic_regression-0.png",
+          "alt": "cancerdetection — logistic regression",
+          "source": "notebook"
+        },
+        {
+          "src": "/projects/auto/cancerdetection/logistic_regression-1.png",
+          "alt": "cancerdetection — logistic regression",
+          "source": "notebook"
+        }
+      ]
+    },
+    "PixelCraft": {
+      "images": [
+        {
+          "src": "https://raw.githubusercontent.com/FelexHill7/PixelCraft/main/testImg.PNG",
+          "alt": "PixelCraft — testImg",
+          "source": "file"
+        },
+        {
+          "src": "https://raw.githubusercontent.com/FelexHill7/PixelCraft/main/testImg2.PNG",
+          "alt": "PixelCraft — testImg2",
+          "source": "file"
+        }
+      ]
+    },
+    "app-ideas": {
+      "images": [
+        {
+          "src": "https://www.icodethis.com/banner.jpg",
+          "alt": "iCodeThis",
+          "source": "readme"
+        },
+        {
+          "src": "https://raw.githubusercontent.com/FelexHill7/app-ideas/master/app-ideas.png",
+          "alt": "app-ideas — app ideas",
+          "source": "file"
+        }
+      ]
+    }
+  },
+  "autoProjects": []
+}
