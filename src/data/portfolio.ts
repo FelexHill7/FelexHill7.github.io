@@ -63,6 +63,8 @@ export type Project = {
   description: string;
   stack: string[];
   links: { label: string; href: string }[];
+  /** Shown where links would be, e.g. "Private repository" for closed-source work. */
+  note?: string;
   live?: boolean;
   /**
    * GitHub repo name to pull images from. Defaults to the repo in the GitHub link.
@@ -89,9 +91,9 @@ export const projects: Project[] = [
     description:
       "An end-to-end app that generates outfits from your existing closet. I built it with Next.js and TypeScript, designed a RAG recommendation pipeline over each user's closet using embeddings and semantic retrieval, and automated clothing tagging with the OpenAI API using structured outputs. The backend is REST APIs in Node.js on PostgreSQL with Clerk auth and cloud storage, deployed on Vercel.",
     stack: ["TypeScript", "Next.js", "React", "Node.js", "PostgreSQL", "Supabase", "OpenAI API", "Vercel"],
-    links: [
-      { label: "GitHub", href: "https://github.com/FelexHill7" }, // TODO: repo or live link
-    ],
+    // private codebase (someone else's product), so no public links
+    links: [],
+    note: "Private repository",
     live: true,
     accent: "#2f6bff",
   },
