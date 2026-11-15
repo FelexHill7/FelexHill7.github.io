@@ -9,7 +9,7 @@ const S = "footer";
 
 export function Footer() {
   return (
-    <BuildSection id={S} index={5} as="footer" className="mx-auto max-w-[1400px] px-6 pb-28 pt-10 lg:px-10 lg:pb-32">
+    <BuildSection id={S} index={6} as="footer" className="mx-auto max-w-[1400px] px-6 pb-28 pt-10 lg:px-10 lg:pb-32">
       <Reveal section={S} className="mb-12 h-px w-full bg-white/[0.08]" />
 
       <div className="grid grid-cols-2 gap-x-8 gap-y-12 md:grid-cols-4 lg:gap-x-14">

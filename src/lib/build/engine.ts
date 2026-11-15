@@ -98,11 +98,13 @@ export class BuildEngine {
   registerSection(id: string, index: number) {
     this.sectionIndex.set(id, index);
     if (this.config.instant || index === 0) this.armed.add(id);
+    this.queue = null;
   }
 
   arm(section: string) {
     if (this.armed.has(section)) return;
     this.armed.add(section);
+    this.queue = null;
     this.emitGlobal(true);
   }
 
@@ -120,6 +122,7 @@ export class BuildEngine {
       startedAt: 0,
     };
     this.layers.set(layer.id, layer);
+    this.queue = null;
     this.emitLayer(layer.id);
     this.emitGlobal(true);
     return layer;
@@ -127,6 +130,7 @@ export class BuildEngine {
 
   unregister(id: string) {
     this.layers.delete(id);
+    this.queue = null;
     this.emitGlobal(true);
   }
 
@@ -153,12 +157,6 @@ export class BuildEngine {
     };
   }
 
-  /** Stable primitive snapshot for useSyncExternalStore. */
-  getLayerSnapshot(id: string): string {
-    const l = this.layers.get(id);
-    if (!l) return this.config.instant ? "built:1" : "pending:0";
-    return `${l.status}:${l.status === "building" ? l.progress.toFixed(3) : l.progress}`;
-  }
 
   private emitLayer(id: string) {
     this.layerListeners.get(id)?.forEach((fn) => fn());
@@ -204,7 +202,11 @@ export class BuildEngine {
     return this.pendingCandidates().slice(0, limit);
   }
 
+  /** Sorted pending queue, rebuilt only when layers, statuses or armed sections change. */
+  private queue: Layer[] | null = null;
+
   private pendingCandidates(): Layer[] {
+    if (this.queue) return this.queue;
     const out: Layer[] = [];
     this.layers.forEach((l) => {
       if (l.status === "pending" && this.armed.has(l.section)) out.push(l);
@@ -214,6 +216,7 @@ export class BuildEngine {
       const sb = this.sectionIndex.get(b.section) ?? 99;
       return sa - sb || a.order - b.order;
     });
+    this.queue = out;
     return out;
   }
 
@@ -251,6 +254,7 @@ export class BuildEngine {
   }
 
   skip() {
+    this.queue = null;
     this.sectionIndex.forEach((_, id) => this.armed.add(id));
     this.layers.forEach((l) => {
       l.status = "built";
@@ -263,6 +267,7 @@ export class BuildEngine {
   }
 
   replay() {
+    this.queue = null;
     const now = performance.now();
     this.armed.clear();
     this.sectionIndex.forEach((idx, id) => idx === 0 && this.armed.add(id));
@@ -318,12 +323,13 @@ export class BuildEngine {
     });
 
     // start new ones
-    const candidates = this.pendingCandidates();
+    const candidates = this.pendingCandidates().slice();
     while (active.length < this.config.maxConcurrent && candidates.length) {
       // stagger starts so parallel builds don't all fire on the same frame
       if (now - this.lastStartAt < MIN_START_GAP_MS * (this.config.mobile ? 2 : 1)) break;
       const next = candidates.shift()!;
       next.status = "building";
+      this.queue = null;
       next.startedAt = now;
       next.progress = 0;
       this.lastStartAt = now;

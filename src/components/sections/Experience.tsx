@@ -12,7 +12,7 @@ export function Experience() {
   return (
     <BuildSection
       id={S}
-      index={2}
+      index={3}
       className="mx-auto max-w-[1400px] scroll-mt-20 px-6 py-28 lg:px-10 lg:py-40"
     >
       <div className="grid grid-cols-1 gap-16 lg:grid-cols-12 lg:gap-14">

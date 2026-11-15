@@ -7,7 +7,7 @@ import "./globals.css";
 const sans = Inter_Tight({
   subsets: ["latin"],
   variable: "--font-inter-tight",
-  weight: ["400", "500", "600", "700", "800"],
+  weight: ["400", "500", "600", "700"],
   display: "swap",
 });
 

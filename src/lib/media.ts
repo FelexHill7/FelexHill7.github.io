@@ -6,6 +6,7 @@
  */
 
 import mediaData from "../../data/project-media.json";
+import reposData from "../../data/repos.json";
 import { profile, projects, type ProjectImage, type ResolvedProject } from "@/data/portfolio";
 
 type AutoProject = {
@@ -46,6 +47,43 @@ function imagesFor(repo: string | undefined): ProjectImage[] {
 function firstSentence(text: string): string {
   const s = text.split(/(?<=[.!?])\s/)[0] ?? text;
   return s.length > 90 ? `${s.slice(0, 87).trimEnd()}…` : s;
+}
+
+export type OtherWork = {
+  name: string;
+  description: string;
+  url: string;
+  language: string | null;
+  updated: string;
+};
+
+type SnapshotRepo = {
+  name: string;
+  description: string | null;
+  html_url: string;
+  language: string | null;
+  fork: boolean;
+  pushed_at: string;
+};
+
+/**
+ * Recently pushed repos that aren't already featured in Work, from the daily
+ * data/repos.json snapshot. Skips forks, undescribed repos, this site and the profile repo.
+ */
+export function getOtherWorks(limit: number): OtherWork[] {
+  const featured = new Set(getProjects().map((p) => repoOf(p)?.toLowerCase()).filter(Boolean));
+  const skip = new Set([profile.githubUser.toLowerCase(), `${profile.githubUser}.github.io`.toLowerCase()]);
+  return ((reposData as { repos?: SnapshotRepo[] }).repos ?? [])
+    .filter((r) => !r.fork && r.description && !featured.has(r.name.toLowerCase()) && !skip.has(r.name.toLowerCase()))
+    .sort((a, b) => b.pushed_at.localeCompare(a.pushed_at))
+    .slice(0, limit)
+    .map((r) => ({
+      name: r.name,
+      description: r.description!,
+      url: r.html_url,
+      language: r.language,
+      updated: new Date(r.pushed_at).toLocaleDateString("en-US", { month: "short", year: "numeric", timeZone: "UTC" }),
+    }));
 }
 
 export function getProjects(): ResolvedProject[] {

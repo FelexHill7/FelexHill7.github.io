@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import Image from "next/image";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { ProjectImage, ResolvedProject } from "@/data/portfolio";
 
 function hash(s: string) {
@@ -11,7 +12,7 @@ function hash(s: string) {
 
 /**
  * Screenshot frame for a project. Shows the project's images (manual override
- * or found in its GitHub repo), crossfading between them; otherwise renders a
+ * or found in its GitHub repo) in a slider; otherwise renders a
  * deterministic mock product UI in the project's accent colour.
  */
 export function ProjectFrame({ project }: { project: ResolvedProject }) {
@@ -91,57 +92,188 @@ export function ProjectFrame({ project }: { project: ResolvedProject }) {
 }
 
 const SLIDE_MS = 4500;
+const SWIPE_PX = 40;
 
+/** next/image can only optimise hosts allowed in next.config.ts; anything else is shown as-is. */
+const OPTIMIZABLE =
+  /^(\/(?!\/)|https:\/\/raw\.githubusercontent\.com\/FelexHill7\/|https:\/\/user-images\.githubusercontent\.com\/|https:\/\/github\.com\/user-attachments\/assets\/)[^?]*$/;
+
+function useInView(ref: React.RefObject<HTMLElement | null>) {
+  const [inView, setInView] = useState(false);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const io = new IntersectionObserver(([e]) => setInView(e.isIntersecting), { threshold: 0.25 });
+    io.observe(el);
+    return () => io.disconnect();
+  }, [ref]);
+  return inView;
+}
+
+function usePageVisible() {
+  const [visible, setVisible] = useState(true);
+  useEffect(() => {
+    const on = () => setVisible(!document.hidden);
+    document.addEventListener("visibilitychange", on);
+    return () => document.removeEventListener("visibilitychange", on);
+  }, []);
+  return visible;
+}
+
+/**
+ * Horizontal slider: auto-advances while on screen, with arrows, dots and swipe.
+ * A clone of the first slide sits at the end so the loop always pans forward.
+ */
 function Gallery({ images, onError }: { images: ProjectImage[]; onError: (src: string) => void }) {
-  const [index, setIndex] = useState(0);
+  const frame = useRef<HTMLDivElement>(null);
+  const inView = useInView(frame);
+  const pageVisible = usePageVisible();
   const [hovered, setHovered] = useState(false);
-  const current = index % images.length;
+  const [index, setIndex] = useState(0); // 0..count, where count is the clone of slide 0
+  const [animate, setAnimate] = useState(true);
+  const swipeX = useRef<number | null>(null);
+  const count = images.length;
+  const multi = count > 1;
+  const slides = multi ? [...images, images[0]] : images;
+  const current = index % count;
+
+  const indexRef = useRef(0);
+  useEffect(() => {
+    indexRef.current = index;
+  }, [index]);
+
+  const go = useCallback(
+    (dir: 1 | -1) => {
+      const i = indexRef.current;
+      if (dir === 1) {
+        setAnimate(true);
+        setIndex(Math.min(i + 1, count));
+      } else if (i === 0) {
+        // jump to the clone without animating, then pan back one slide
+        setAnimate(false);
+        setIndex(count);
+        requestAnimationFrame(() =>
+          requestAnimationFrame(() => {
+            setAnimate(true);
+            setIndex(count - 1);
+          }),
+        );
+      } else {
+        setAnimate(true);
+        setIndex(i - 1);
+      }
+    },
+    [count],
+  );
+
+  // after panning onto the clone, snap back to the real first slide
+  const onTransitionEnd = () => {
+    if (index === count) {
+      setAnimate(false);
+      setIndex(0);
+    }
+  };
+
+  // auto-advance only while visible on screen, tab active and not hovered;
+  // the timer restarts after every manual move
+  useEffect(() => {
+    if (!multi || !inView || !pageVisible || hovered) return;
+    const t = window.setTimeout(() => go(1), SLIDE_MS);
+    return () => window.clearTimeout(t);
+  }, [multi, inView, pageVisible, hovered, index, go]);
 
   useEffect(() => {
-    if (images.length < 2 || hovered) return;
-    const t = window.setInterval(() => setIndex((i) => i + 1), SLIDE_MS);
-    return () => window.clearInterval(t);
-  }, [images.length, hovered]);
+    if (animate) return;
+    const raf = requestAnimationFrame(() => setAnimate(true));
+    return () => cancelAnimationFrame(raf);
+  }, [animate]);
 
   return (
     <div
-      className="relative aspect-[16/10] w-full overflow-hidden bg-[#0e0e10]"
+      ref={frame}
+      className="group/gallery relative aspect-[16/10] w-full touch-pan-y overflow-hidden bg-[#0e0e10]"
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
+      onPointerDown={(e) => (swipeX.current = e.clientX)}
+      onPointerUp={(e) => {
+        if (swipeX.current === null || !multi) return;
+        const dx = e.clientX - swipeX.current;
+        swipeX.current = null;
+        if (Math.abs(dx) > SWIPE_PX) go(dx < 0 ? 1 : -1);
+      }}
     >
-      {images.map((img, i) => (
-        <div
-          key={img.src}
-          className="absolute inset-0 transition-opacity duration-700"
-          style={{ opacity: i === current ? 1 : 0 }}
-          aria-hidden={i !== current}
-        >
-          {/* blurred copy fills the frame behind plots and odd aspect ratios */}
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={img.src} alt="" aria-hidden className="absolute inset-0 h-full w-full scale-110 object-cover opacity-25 blur-2xl" />
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={img.src}
-            alt={img.alt}
-            loading={i === 0 ? "eager" : "lazy"}
-            onError={() => onError(img.src)}
-            className="absolute inset-0 h-full w-full object-contain p-3"
-          />
-        </div>
-      ))}
-      {images.length > 1 && (
-        <div className="absolute bottom-3 right-3 flex gap-1.5 rounded-full bg-black/50 px-2 py-1.5 backdrop-blur">
-          {images.map((img, i) => (
-            <button
-              key={img.src}
-              type="button"
-              aria-label={`Show image ${i + 1} of ${images.length}`}
-              onClick={() => setIndex(i)}
-              className={`h-1.5 rounded-full transition-all ${i === current ? "w-4 bg-white" : "w-1.5 bg-white/40 hover:bg-white/70"}`}
-            />
-          ))}
-        </div>
+      <div
+        className="flex h-full"
+        style={{
+          transform: `translate3d(${-index * 100}%,0,0)`,
+          transition: animate ? "transform 700ms cubic-bezier(0.65, 0, 0.35, 1)" : "none",
+        }}
+        onTransitionEnd={onTransitionEnd}
+      >
+        {slides.map((img, i) => {
+          const optimize = OPTIMIZABLE.test(img.src);
+          return (
+            <div key={`${img.src}-${i}`} className="relative h-full w-full shrink-0 overflow-hidden" aria-hidden={i % count !== current}>
+              {/* blurred backdrop from a 64px thumbnail, blurred at quarter size then scaled up */}
+              <div className="absolute left-0 top-0 h-1/4 w-1/4 origin-top-left scale-[4.4] opacity-30 blur-md">
+                <Image src={img.src} alt="" fill sizes="64px" quality={60} unoptimized={!optimize} className="object-cover" />
+              </div>
+              <Image
+                src={img.src}
+                alt={img.alt}
+                fill
+                sizes="(min-width: 1024px) 760px, 100vw"
+                quality={75}
+                unoptimized={!optimize}
+                draggable={false}
+                onError={() => onError(img.src)}
+                className="select-none object-contain p-3"
+              />
+            </div>
+          );
+        })}
+      </div>
+
+      {multi && (
+        <>
+          <GalleryArrow dir={-1} onClick={() => go(-1)} />
+          <GalleryArrow dir={1} onClick={() => go(1)} />
+          <div className="absolute bottom-3 right-3 flex items-center gap-1.5 rounded-full bg-black/55 px-2 py-1.5 backdrop-blur">
+            {images.map((img, i) => (
+              <button
+                key={img.src}
+                type="button"
+                aria-label={`Show image ${i + 1} of ${count}`}
+                onClick={() => {
+                  setAnimate(true);
+                  setIndex(i);
+                }}
+                className={`h-1.5 rounded-full transition-all ${i === current ? "w-4 bg-white" : "w-1.5 bg-white/40 hover:bg-white/70"}`}
+              />
+            ))}
+          </div>
+          <div className="pointer-events-none absolute left-3 top-3 rounded-full bg-black/55 px-2 py-0.5 font-mono text-[10px] tabular-nums text-white/70 backdrop-blur">
+            {current + 1} / {count}
+          </div>
+        </>
       )}
     </div>
+  );
+}
+
+function GalleryArrow({ dir, onClick }: { dir: 1 | -1; onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      aria-label={dir === 1 ? "Next image" : "Previous image"}
+      onClick={onClick}
+      onPointerDown={(e) => e.stopPropagation()}
+      onPointerUp={(e) => e.stopPropagation()}
+      className={`absolute top-1/2 ${dir === 1 ? "right-3" : "left-3"} flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full border border-white/15 bg-black/55 text-white opacity-0 backdrop-blur transition hover:bg-black/75 focus-visible:opacity-100 group-hover/gallery:opacity-100 [@media(hover:none)]:opacity-100`}
+    >
+      <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+        <path d={dir === 1 ? "M9 6l6 6-6 6" : "M15 6l-6 6 6 6"} />
+      </svg>
+    </button>
   );
 }

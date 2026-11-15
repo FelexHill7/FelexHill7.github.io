@@ -17,7 +17,7 @@ export const profile = {
 export const site = {
   name: "Felex Hill",
   location: "Toronto / Mississauga, Canada",
-  url: "https://felexhill7.github.io",
+  url: "https://felexhill.vercel.app",
   description:
     "Felex Hill — {yearOrdinal}-year Computer Science student at York University and AI engineer building ML-powered products.",
 };
@@ -34,6 +34,7 @@ export const nav = [
   { label: "Work", href: "#work" },
   { label: "Experience", href: "#experience" },
   { label: "Contact", href: "#contact" },
+  { label: "Resume", href: links.resume },
 ];
 
 export const hero = {
@@ -151,8 +152,29 @@ export const work = {
   headline: ["Proof lives in", "what I've shipped."],
 };
 
+export const more = {
+  eyebrow: "[02] MORE WORK",
+  headline: ["There's more", "where that came from."],
+  intro:
+    "The projects above are the highlights. My resume has the full picture, and GitHub has everything else I've built, from coursework to late-night experiments.",
+  resume: {
+    title: "Resume",
+    body: "Experience, education and skills on one page.",
+    open: "Open resume",
+    download: "Download PDF",
+  },
+  github: {
+    title: "GitHub",
+    body: "Public repositories, from coursework to research experiments, updated as I ship.",
+    cta: "View all repositories",
+  },
+  recentLabel: "RECENTLY ON GITHUB",
+  /** How many other repos to list (excludes ones already featured in Work). */
+  recentCount: 6,
+};
+
 export const experienceSection = {
-  eyebrow: "[02] EXPERIENCE",
+  eyebrow: "[03] EXPERIENCE",
   headline: ["Where I've", "worked."],
 };
 
@@ -196,8 +218,8 @@ export const education = [
 ];
 
 export const about = {
-  eyebrow: "[03] ABOUT",
-  educationEyebrow: "[04] EDUCATION",
+  eyebrow: "[04] ABOUT",
+  educationEyebrow: "[05] EDUCATION",
   skillsEyebrow: "STACK",
   headline: ["Applied AI,", "built properly."],
   body: [
@@ -212,7 +234,7 @@ export const about = {
 };
 
 export const contact = {
-  eyebrow: "[05] CONTACT",
+  eyebrow: "[06] CONTACT",
   headline: "Have a hard problem to build?",
   subline:
     "I'm open to internships, research collaborations and ambitious side projects in applied AI and medtech.",

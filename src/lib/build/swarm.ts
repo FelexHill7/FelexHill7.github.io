@@ -187,14 +187,27 @@ export class Swarm {
 
   private loop = (now: number) => {
     if (!this.running) return;
+    // Paused: freeze the last frame and stop the loop. AgentSwarm restarts it on resume.
+    if (this.engine.isPaused) {
+      this.running = false;
+      return;
+    }
     this.engine.tick(now);
     const dt = this.lastNow ? Math.min(2.5, (now - this.lastNow) / 16.667) : 1;
     this.lastNow = now;
     this.frame++;
+    this.rects.clear();
+    this.carets.clear();
 
-    if (!this.engine.hidden) {
-      this.update(now, dt);
-      this.draw(now);
+    this.update(now, dt);
+    this.draw(now);
+
+    // Nothing left to build until another section scrolls in, and every agent has
+    // left the screen: clear and sleep. Arming a section wakes the loop again.
+    if (this.isIdle()) {
+      this.ctx.clearRect(0, 0, this.w, this.h);
+      this.running = false;
+      return;
     }
 
     if (this.engine.phase === "done") {
@@ -212,10 +225,24 @@ export class Swarm {
 
   /* ---------- geometry helpers ---------- */
 
+  /** Layout reads are cached for the frame: each one can force a reflow. */
+  private rects = new Map<string, Rect | null>();
+  private carets = new Map<string, DOMRect | null>();
+
   private rectOf(l: Layer): Rect | null {
+    const hit = this.rects.get(l.id);
+    if (hit !== undefined) return hit;
     const r = l.el?.getBoundingClientRect();
-    if (!r || (r.width === 0 && r.height === 0)) return null;
-    return { x: r.left, y: r.top, w: r.width, h: r.height };
+    const rect = !r || (r.width === 0 && r.height === 0) ? null : { x: r.left, y: r.top, w: r.width, h: r.height };
+    this.rects.set(l.id, rect);
+    return rect;
+  }
+
+  private isIdle(): boolean {
+    const { engine } = this;
+    if (engine.phase !== "building" || this.crosses.length) return false;
+    if (engine.getActive().length || engine.getQueue(1).length) return false;
+    return this.agents.every((a) => a.y > this.h + 20 || a.y < -40 || a.x < -40 || a.x > this.w + 40);
   }
 
   private isBox(l: Layer) {
@@ -227,7 +254,11 @@ export class Swarm {
   }
 
   private caretOf(l: Layer): DOMRect | null {
-    return l.el?.querySelector("[data-caret]")?.getBoundingClientRect() ?? null;
+    const hit = this.carets.get(l.id);
+    if (hit !== undefined) return hit;
+    const r = l.el?.querySelector("[data-caret]")?.getBoundingClientRect() ?? null;
+    this.carets.set(l.id, r);
+    return r;
   }
 
   /** Where the lead agent works: caret, dragged corner, or chip centre. */
@@ -442,7 +473,9 @@ export class Swarm {
     }
 
     if (this.crosses.length > 140) this.crosses.splice(0, this.crosses.length - 140);
-    this.crosses = this.crosses.filter((c) => now - c.born < 700);
+    let drop = 0;
+    while (drop < this.crosses.length && now - this.crosses[drop].born >= 700) drop++;
+    if (drop) this.crosses.splice(0, drop);
   }
 
   /* ---------- rendering ---------- */
@@ -537,11 +570,9 @@ export class Swarm {
 
     if (a.role === "ibeam") {
       // text-tool cursor centred on the caret
+      // soft glow from a wide translucent stroke under a crisp one (shadowBlur is costly)
       ctx.strokeStyle = a.color;
-      ctx.lineWidth = 1.6;
       ctx.lineCap = "round";
-      ctx.shadowColor = a.color;
-      ctx.shadowBlur = 6;
       ctx.beginPath();
       ctx.moveTo(0, -8);
       ctx.lineTo(0, 8);
@@ -549,6 +580,11 @@ export class Swarm {
       ctx.lineTo(3.5, -8);
       ctx.moveTo(-3.5, 8);
       ctx.lineTo(3.5, 8);
+      ctx.globalAlpha = 0.25;
+      ctx.lineWidth = 5;
+      ctx.stroke();
+      ctx.globalAlpha = 1;
+      ctx.lineWidth = 1.6;
       ctx.stroke();
       ctx.restore();
       return;

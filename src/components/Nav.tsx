@@ -46,6 +46,7 @@ export function Nav() {
               order={2 + i}
               as="a"
               href={item.href}
+              {...(item.href.startsWith("#") ? {} : { target: "_blank", rel: "noreferrer" })}
               className="text-[13px] text-white/65 transition-colors hover:text-white"
             >
               {item.label}

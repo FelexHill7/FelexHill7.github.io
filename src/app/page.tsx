@@ -5,13 +5,14 @@ import { IntroOverlay } from "@/components/build/IntroOverlay";
 import { Nav } from "@/components/Nav";
 import { Hero } from "@/components/sections/Hero";
 import { Work } from "@/components/sections/Work";
+import { MoreWork } from "@/components/sections/MoreWork";
 import { Experience } from "@/components/sections/Experience";
 import { About } from "@/components/sections/About";
 import { Contact } from "@/components/sections/Contact";
 import { Footer } from "@/components/sections/Footer";
-import { about, education, hero } from "@/data/portfolio";
+import { about, education, hero, more } from "@/data/portfolio";
 import { fill, getLiveStats, resolveStats } from "@/lib/live";
-import { getProjects } from "@/lib/media";
+import { getOtherWorks, getProjects } from "@/lib/media";
 
 // Re-render at most once a day so project count, year of study, etc. stay current.
 export const revalidate = 86400;
@@ -26,6 +27,7 @@ export default async function Page() {
       <main>
         <Hero intro={fill(hero.intro, live)} stats={resolveStats(live)} />
         <Work projects={getProjects()} />
+        <MoreWork repoCount={live.projects} others={getOtherWorks(more.recentCount)} />
         <Experience />
         <About
           body={about.body.map((p) => fill(p, live))}
