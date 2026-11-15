@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-15T11:34:26.944Z",
+  "generatedAt": "2026-11-15T12:01:06.263Z",
   "user": "FelexHill7",
   "autoTopic": "portfolio-project",
   "media": {
@@ -57,6 +57,30 @@
           "src": "https://raw.githubusercontent.com/FelexHill7/rea/main/docs/assets/rea-hopper-analysis.png",
           "alt": "REA launching its analysis bridge inside Hopper while inspecting a native binary",
           "source": "readme"
+        }
+      ]
+    },
+    "Bike_Share_model": {
+      "images": [
+        {
+          "src": "https://raw.githubusercontent.com/FelexHill7/Bike_Share_model/main/report/figures/results.png",
+          "alt": "Bike_Share_model — results",
+          "source": "file"
+        },
+        {
+          "src": "https://raw.githubusercontent.com/FelexHill7/Bike_Share_model/main/figures/fig1_shapes.png",
+          "alt": "Bike_Share_model — fig1 shapes",
+          "source": "file"
+        },
+        {
+          "src": "https://raw.githubusercontent.com/FelexHill7/Bike_Share_model/main/figures/fig2_pred_vs_actual.png",
+          "alt": "Bike_Share_model — fig2 pred vs actual",
+          "source": "file"
+        },
+        {
+          "src": "https://raw.githubusercontent.com/FelexHill7/Bike_Share_model/main/figures/fig3_sinusoidal.png",
+          "alt": "Bike_Share_model — fig3 sinusoidal",
+          "source": "file"
         }
       ]
     },
