@@ -1,8 +1,32 @@
 {
-  "generatedAt": "2026-11-15T10:27:45.938Z",
+  "generatedAt": "2026-11-15T10:36:12.257Z",
   "user": "FelexHill7",
   "autoTopic": "portfolio-project",
   "media": {
+    "FelexHill7.github.io": {
+      "images": [
+        {
+          "src": "https://raw.githubusercontent.com/FelexHill7/FelexHill7.github.io/main/public/projects/auto/cancerdetection/model_comparison-0.png",
+          "alt": "FelexHill7.github.io — model comparison 0",
+          "source": "file"
+        },
+        {
+          "src": "https://raw.githubusercontent.com/FelexHill7/FelexHill7.github.io/main/public/projects/auto/cartpole-rl-comparison/notebook-0.png",
+          "alt": "FelexHill7.github.io — notebook 0",
+          "source": "file"
+        },
+        {
+          "src": "https://raw.githubusercontent.com/FelexHill7/FelexHill7.github.io/main/public/projects/auto/cartpole-rl-comparison/notebook-2.png",
+          "alt": "FelexHill7.github.io — notebook 2",
+          "source": "file"
+        },
+        {
+          "src": "https://raw.githubusercontent.com/FelexHill7/FelexHill7.github.io/main/public/projects/auto/cancerdetection/logistic_regression-0.png",
+          "alt": "FelexHill7.github.io — logistic regression 0",
+          "source": "file"
+        }
+      ]
+    },
     "ssbu-recomp": {
       "images": [
         {
