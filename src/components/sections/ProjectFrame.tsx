@@ -3,6 +3,8 @@
 import Image from "next/image";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { ProjectImage, ResolvedProject } from "@/data/portfolio";
+import { canOptimize } from "@/lib/images";
+import { ImageLightbox } from "./ImageLightbox";
 
 function hash(s: string) {
   let h = 2166136261;
@@ -17,7 +19,9 @@ function hash(s: string) {
  */
 export function ProjectFrame({ project }: { project: ResolvedProject }) {
   const [failed, setFailed] = useState<Set<string>>(() => new Set());
+  const [viewing, setViewing] = useState<number | null>(null);
   const images = project.images.filter((img) => !failed.has(img.src));
+  const repoUrl = project.links.find((l) => /^https:\/\/github\.com\//.test(l.href))?.href;
   const accent = project.accent ?? "#2f6bff";
   const seed = hash(project.slug);
   const bars = Array.from({ length: 14 }, (_, i) => 28 + ((seed >> (i * 2)) % 61));
@@ -36,7 +40,12 @@ export function ProjectFrame({ project }: { project: ResolvedProject }) {
       </div>
 
       {images.length ? (
-        <Gallery images={images} onError={(src) => setFailed((f) => new Set(f).add(src))} />
+        <Gallery
+          images={images}
+          paused={viewing !== null}
+          onOpen={setViewing}
+          onError={(src) => setFailed((f) => new Set(f).add(src))}
+        />
       ) : (
         <div className="relative aspect-[16/10] w-full overflow-hidden p-5">
           <div
@@ -87,16 +96,22 @@ export function ProjectFrame({ project }: { project: ResolvedProject }) {
           </div>
         </div>
       )}
+      {viewing !== null && images[viewing] && (
+        <ImageLightbox
+          images={images}
+          index={viewing}
+          title={project.title}
+          repoUrl={repoUrl}
+          onIndex={setViewing}
+          onClose={() => setViewing(null)}
+        />
+      )}
     </div>
   );
 }
 
 const SLIDE_MS = 4500;
 const SWIPE_PX = 40;
-
-/** next/image can only optimise hosts allowed in next.config.ts; anything else is shown as-is. */
-const OPTIMIZABLE =
-  /^(\/(?!\/)|https:\/\/raw\.githubusercontent\.com\/FelexHill7\/|https:\/\/user-images\.githubusercontent\.com\/|https:\/\/github\.com\/user-attachments\/assets\/)[^?]*$/;
 
 function useInView(ref: React.RefObject<HTMLElement | null>) {
   const [inView, setInView] = useState(false);
@@ -124,7 +139,17 @@ function usePageVisible() {
  * Horizontal slider: auto-advances while on screen, with arrows, dots and swipe.
  * A clone of the first slide sits at the end so the loop always pans forward.
  */
-function Gallery({ images, onError }: { images: ProjectImage[]; onError: (src: string) => void }) {
+function Gallery({
+  images,
+  paused,
+  onOpen,
+  onError,
+}: {
+  images: ProjectImage[];
+  paused: boolean;
+  onOpen: (index: number) => void;
+  onError: (src: string) => void;
+}) {
   const frame = useRef<HTMLDivElement>(null);
   const inView = useInView(frame);
   const pageVisible = usePageVisible();
@@ -132,6 +157,7 @@ function Gallery({ images, onError }: { images: ProjectImage[]; onError: (src: s
   const [index, setIndex] = useState(0); // 0..count, where count is the clone of slide 0
   const [animate, setAnimate] = useState(true);
   const swipeX = useRef<number | null>(null);
+  const swiped = useRef(false);
   const count = images.length;
   const multi = count > 1;
   const slides = multi ? [...images, images[0]] : images;
@@ -177,10 +203,10 @@ function Gallery({ images, onError }: { images: ProjectImage[]; onError: (src: s
   // auto-advance only while visible on screen, tab active and not hovered;
   // the timer restarts after every manual move
   useEffect(() => {
-    if (!multi || !inView || !pageVisible || hovered) return;
+    if (!multi || !inView || !pageVisible || hovered || paused) return;
     const t = window.setTimeout(() => go(1), SLIDE_MS);
     return () => window.clearTimeout(t);
-  }, [multi, inView, pageVisible, hovered, index, go]);
+  }, [multi, inView, pageVisible, hovered, paused, index, go]);
 
   useEffect(() => {
     if (animate) return;
@@ -194,12 +220,18 @@ function Gallery({ images, onError }: { images: ProjectImage[]; onError: (src: s
       className="group/gallery relative aspect-[16/10] w-full touch-pan-y overflow-hidden bg-[#0e0e10]"
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
-      onPointerDown={(e) => (swipeX.current = e.clientX)}
+      onPointerDown={(e) => {
+        swipeX.current = e.clientX;
+        swiped.current = false;
+      }}
       onPointerUp={(e) => {
         if (swipeX.current === null || !multi) return;
         const dx = e.clientX - swipeX.current;
         swipeX.current = null;
-        if (Math.abs(dx) > SWIPE_PX) go(dx < 0 ? 1 : -1);
+        if (Math.abs(dx) > SWIPE_PX) {
+          swiped.current = true; // the click that follows a swipe must not open the viewer
+          go(dx < 0 ? 1 : -1);
+        }
       }}
     >
       <div
@@ -211,7 +243,7 @@ function Gallery({ images, onError }: { images: ProjectImage[]; onError: (src: s
         onTransitionEnd={onTransitionEnd}
       >
         {slides.map((img, i) => {
-          const optimize = OPTIMIZABLE.test(img.src);
+          const optimize = canOptimize(img.src);
           return (
             <div key={`${img.src}-${i}`} className="relative h-full w-full shrink-0 overflow-hidden" aria-hidden={i % count !== current}>
               {/* blurred backdrop from a 64px thumbnail, blurred at quarter size then scaled up */}
@@ -234,6 +266,26 @@ function Gallery({ images, onError }: { images: ProjectImage[]; onError: (src: s
         })}
       </div>
 
+      <button
+        type="button"
+        aria-label={`Enlarge image ${current + 1} of ${count}`}
+        onClick={() => {
+          if (swiped.current) {
+            swiped.current = false;
+            return;
+          }
+          onOpen(current);
+        }}
+        className="absolute inset-0 cursor-zoom-in focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-4 focus-visible:outline-accent"
+      >
+        <span className="pointer-events-none absolute right-3 top-3 flex items-center gap-1.5 rounded-full bg-black/55 px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.16em] text-white/80 opacity-0 backdrop-blur transition-opacity group-hover/gallery:opacity-100 [@media(hover:none)]:opacity-100">
+          <svg viewBox="0 0 24 24" className="h-3 w-3" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden>
+            <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" />
+          </svg>
+          Enlarge
+        </span>
+      </button>
+
       {multi && (
         <>
           <GalleryArrow dir={-1} onClick={() => go(-1)} />
@@ -248,6 +300,8 @@ function Gallery({ images, onError }: { images: ProjectImage[]; onError: (src: s
                   setAnimate(true);
                   setIndex(i);
                 }}
+                onPointerDown={(e) => e.stopPropagation()}
+                onPointerUp={(e) => e.stopPropagation()}
                 className={`h-1.5 rounded-full transition-all ${i === current ? "w-4 bg-white" : "w-1.5 bg-white/40 hover:bg-white/70"}`}
               />
             ))}

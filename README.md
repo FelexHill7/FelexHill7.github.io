@@ -47,7 +47,7 @@ The page uses `revalidate = 86400`, so Vercel re-renders it at most once a day. 
 2. Image files in the repo, ranked by how screenshot-like the path is. Icons, badges, datasets and test fixtures are skipped.
 3. Plots rendered inside Jupyter notebook outputs. These have no URL, so they are decoded and saved to `public/projects/auto/<repo>/`.
 
-Results go to `data/project-media.json`. A project gets the images of the repo in its GitHub link, or of `repo` if you set it. Several images appear in a slider that auto-advances while on screen and has previous/next arrows, dots and swipe. A project with none shows a generated mock-up in its accent colour. Images are served through Next.js image optimization, which resizes them and converts them to WebP. To pin a specific screenshot, put it in `public/projects/` and set `image: "/projects/<file>.png"` on the project.
+Results go to `data/project-media.json`. A project gets the images of the repo in its GitHub link, or of `repo` if you set it. Several images appear in a slider that auto-advances while on screen and has previous/next arrows, dots and swipe. Clicking an image opens it full screen, with a link to the file on GitHub (or to the repo, for notebook plots). A project with none shows a generated mock-up in its accent colour. Images are served through Next.js image optimization, which resizes them and converts them to WebP. To pin a specific screenshot, put it in `public/projects/` and set `image: "/projects/<file>.png"` on the project.
 
 **Auto-added projects:** tag any repo with the GitHub topic `portfolio-project` and the next run appends it to the Work section. It uses the repo's description, top languages, topics and homepage, which becomes a Live link. Forks are never auto-added.
 
@@ -73,9 +73,11 @@ Results go to `data/project-media.json`. A project gets the images of the repo i
 
 Every visible cursor has a job:
 
-- **Builders.** One per element being built, up to 6 at once on desktop and 2 on mobile. Text gets an I-beam on the caret. Boxes get one cursor dragging the corner and one holding the anchor.
+- **Builders.** One per element being built, up to 5 at once on desktop and 2 on mobile. Only elements that are on screen start building; anything below the fold waits until it is scrolled into view. Text gets an I-beam on the caret. Boxes get one cursor dragging the corner and one holding the anchor.
 - **Claimers.** Each parks on the corner of an upcoming element and outlines where it will go. The cursor that claims an element is the one that builds it.
-- **Idle agents** leave the viewport toward unbuilt sections.
+- **Spare agents** leave the screen while others are working. When nothing on screen needs building, all of them drift in faded flocks around a slow circle until there is work again.
+
+Pacing lives at the top of `src/lib/build/engine.ts`: `SUMMARY_PACE` slows paragraph-length text and `PACE` slows everything else.
 
 To add an element to the show:
 

@@ -49,21 +49,37 @@ export interface EngineConfig {
 }
 
 const CHAR_MS = 20;
-const MIN_START_GAP_MS = 110;
+const MIN_START_GAP_MS = 130;
+
+/** Text longer than this is a summary paragraph and types more slowly, so it can be read. */
+const SUMMARY_CHARS = 80;
+const SUMMARY_PACE = 1.3;
+/** Everything else (headings, labels, boxes, chips) is slowed slightly so it doesn't overwhelm. */
+const PACE = 1.15;
 
 function baseDuration(input: LayerInput): number {
-  if (input.duration) return input.duration;
+  if (input.duration) return input.duration * PACE;
   switch (input.kind) {
-    case "text":
-      return Math.min(3000, 420 + (input.chars ?? 0) * CHAR_MS);
+    case "text": {
+      const chars = input.chars ?? 0;
+      const base = Math.min(3000, 420 + chars * CHAR_MS);
+      return base * (chars > SUMMARY_CHARS ? SUMMARY_PACE : PACE);
+    }
     case "chip":
-      return 560;
+      return 560 * PACE;
     case "image":
-      return 1500;
+      return 1500 * PACE;
     case "box":
     default:
-      return 1100;
+      return 1100 * PACE;
   }
+}
+
+/** True when the element is actually on screen (any part of it above the fold). */
+function onScreen(el: HTMLElement | null): boolean {
+  if (!el) return false;
+  const r = el.getBoundingClientRect();
+  return r.bottom > 0 && r.top < window.innerHeight - 24;
 }
 
 export class BuildEngine {
@@ -336,11 +352,17 @@ export class BuildEngine {
     });
 
     // start new ones
-    const candidates = this.pendingCandidates().slice();
-    while (active.length < this.config.maxConcurrent && candidates.length) {
+    // Only elements the visitor can see start building, in order; anything below
+    // the fold waits (the swarm idles) until it is scrolled into view.
+    const gap = MIN_START_GAP_MS * (this.config.mobile ? 2 : 1);
+    const visible =
+      active.length < this.config.maxConcurrent && now - this.lastStartAt >= gap
+        ? this.pendingCandidates().slice(0, 40).filter((l) => onScreen(l.el))
+        : [];
+    while (active.length < this.config.maxConcurrent && visible.length) {
       // stagger starts so parallel builds don't all fire on the same frame
-      if (now - this.lastStartAt < MIN_START_GAP_MS * (this.config.mobile ? 2 : 1)) break;
-      const next = candidates.shift()!;
+      if (now - this.lastStartAt < gap) break;
+      const next = visible.shift()!;
       next.status = "building";
       this.queue = null;
       next.startedAt = now;
@@ -362,7 +384,7 @@ export class BuildEngine {
 
 export function detectConfig(): EngineConfig {
   if (typeof window === "undefined") {
-    return { agents: 36, maxConcurrent: 6, speed: 1, mobile: false, instant: false };
+    return { agents: 36, maxConcurrent: 5, speed: 1, mobile: false, instant: false };
   }
   // The build animation is the point of the site, so it always plays; the HUD's
   // Skip button is the opt-out. Flip this to honour prefers-reduced-motion instead:
@@ -371,7 +393,7 @@ export function detectConfig(): EngineConfig {
   const mobile = window.matchMedia("(max-width: 768px)").matches;
   return {
     agents: mobile ? 12 : 36,
-    maxConcurrent: mobile ? 2 : 6,
+    maxConcurrent: mobile ? 2 : 5,
     speed: mobile ? 0.6 : 1,
     mobile,
     instant,

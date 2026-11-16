@@ -192,23 +192,20 @@ export class Swarm {
       this.running = false;
       return;
     }
+    this.frame++;
+    // Idle orbit is slow, so drawing every other frame (~30 fps) looks the same at half the cost.
+    if (this.idle && this.frame % 2 === 1) {
+      this.raf = requestAnimationFrame(this.loop);
+      return;
+    }
     this.engine.tick(now);
     const dt = this.lastNow ? Math.min(2.5, (now - this.lastNow) / 16.667) : 1;
     this.lastNow = now;
-    this.frame++;
     this.rects.clear();
     this.carets.clear();
 
     this.update(now, dt);
     this.draw(now);
-
-    // Nothing left to build until another section scrolls in, and every agent has
-    // left the screen: clear and sleep. Arming a section wakes the loop again.
-    if (this.isIdle()) {
-      this.ctx.clearRect(0, 0, this.w, this.h);
-      this.running = false;
-      return;
-    }
 
     if (this.engine.phase === "done") {
       if (!this.doneAt) this.doneAt = now;
@@ -238,12 +235,11 @@ export class Swarm {
     return rect;
   }
 
-  private isIdle(): boolean {
-    const { engine } = this;
-    if (engine.phase !== "building" || this.crosses.length) return false;
-    if (engine.getActive().length || engine.getQueue(1).length) return false;
-    return this.agents.every((a) => a.y > this.h + 20 || a.y < -40 || a.x < -40 || a.x > this.w + 40);
-  }
+  /**
+   * True while building has nothing to do on screen (no builders, no claims):
+   * the visitor hasn't scrolled to the next unbuilt element yet.
+   */
+  private idle = false;
 
   private isBox(l: Layer) {
     return l.kind === "box" || l.kind === "image";
@@ -346,6 +342,27 @@ export class Swarm {
     return byId;
   }
 
+  /**
+   * Target on the idle orbit for the n-th free agent: a few flocks spaced around
+   * a wide ellipse, each a short arc of cursors, circling once every ~40 s.
+   */
+  private orbitFrame(now: number) {
+    const { w, h, agents } = this;
+    const flocks = Math.max(1, Math.min(5, Math.round(agents.length / 7)));
+    const rx = Math.min(w * 0.38, 560);
+    const ry = Math.min(h * 0.3, 280);
+    const spin = now * 0.00015;
+    return (rank: number, a: Agent) => {
+      const flock = rank % flocks;
+      const member = Math.floor(rank / flocks);
+      const ang = spin + (flock / flocks) * Math.PI * 2 - member * 0.055;
+      return {
+        x: w / 2 + Math.cos(ang) * rx + a.ox * 18,
+        y: h * 0.52 + Math.sin(ang) * ry + a.oy * 18,
+      };
+    };
+  }
+
   private stealClaim(wanted: Want[]): number {
     for (let k = wanted.length - 1; k >= 0; k--) {
       const w = wanted[k];
@@ -368,6 +385,9 @@ export class Swarm {
     let wants: Map<string, Want> | null = null;
     if (phase === "building") wants = this.assignJobs();
     else this.releaseAll();
+    this.idle = phase === "building" && this.jobs.size === 0;
+    const orbit = this.orbitFrame(now);
+    let freeRank = 0;
 
     for (let i = 0; i < agents.length; i++) {
       const a = agents[i];
@@ -404,9 +424,13 @@ export class Swarm {
           tx = want.r.x - 1;
           ty = want.r.y - 1;
         }
+      } else if (this.idle) {
+        // nothing to build on screen: drift in small flocks around a slow, wide circle
+        const p = orbit(freeRank++, a);
+        tx = p.x;
+        ty = p.y;
       } else {
-        // nothing to do on screen: flock off the bottom edge toward the unbuilt
-        // sections below, so every visible cursor is one that's working
+        // others are working: leave the screen so every visible cursor is one doing a job
         if (now > a.wUntil) {
           a.wx = w * 0.15 + Math.random() * w * 0.7;
           a.wy = h + 60 + Math.random() * 80;
@@ -551,20 +575,21 @@ export class Swarm {
 
   private drawAgent(a: Agent) {
     const { ctx } = this;
+    const fade = this.idle ? 0.55 : 1;
     const t = a.trail;
     const n = t.length / 2;
     if (n > 2) {
       ctx.lineWidth = 1;
       ctx.strokeStyle = a.color;
       for (let k = 1; k < n; k++) {
-        ctx.globalAlpha = (k / n) * 0.35;
+        ctx.globalAlpha = (k / n) * 0.35 * fade;
         ctx.beginPath();
         ctx.moveTo(t[(k - 1) * 2], t[(k - 1) * 2 + 1]);
         ctx.lineTo(t[k * 2], t[k * 2 + 1]);
         ctx.stroke();
       }
     }
-    ctx.globalAlpha = 1;
+    ctx.globalAlpha = fade;
     ctx.save();
     ctx.translate(a.x, a.y);
 
@@ -612,6 +637,7 @@ export class Swarm {
     ctx.strokeStyle = isWorker ? "#0b0b0c" : a.color;
     ctx.stroke();
     ctx.restore();
+    ctx.globalAlpha = 1;
   }
 
   private drawLayer(l: Layer, now: number) {
